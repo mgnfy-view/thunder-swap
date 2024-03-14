@@ -2,7 +2,7 @@
 pragma solidity 0.8.20;
 
 import { Test } from "forge-std/Test.sol";
-import {Init} from "../utils/helpers/Init.sol";
+import { Init } from "../utils/helpers/Init.sol";
 
 contract TestLiquidity is Test, Init {
     function testAddInitialLiquidity() public {

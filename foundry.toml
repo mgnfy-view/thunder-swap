@@ -2,7 +2,7 @@
 src = "src"
 out = "out"
 libs = ["lib"]
-remappings = ["@openzeppelin/contracts=lib/openzeppelin-contracts/contracts"]
+remappings = ["@src=src", "@openzeppelin/contracts=lib/openzeppelin-contracts/contracts"]
 
 [fmt]
 bracket_spacing = true
