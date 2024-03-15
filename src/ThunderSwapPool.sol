@@ -19,8 +19,9 @@ contract ThunderSwapPool is IThunderSwapPool {
 
     error InputValueZeroNotAllowed();
     error DeadlinePassed(uint256 _deadline);
+    error LiquidityToAddTooLow(uint256 liquidityToAdd, uint256 MINIMUM_POOL_TOKEN_1_TO_DEPOSIT);
     error LiquidityProviderTokensToMintTooLow(
-        uint256 liquidityProviderTokensToMint, uint256 minLiquidityProviderTokensToMint
+        uint256 liquidityProviderTokensToMint, uint256 minimumLiquidityProviderTokensToMint
     );
     error NotAPoolToken(IERC20 poolToken);
     error PoolTokensToDepositGreaterThanMaximumPoolTokensToDeposit(
@@ -64,18 +65,17 @@ contract ThunderSwapPool is IThunderSwapPool {
         notZero(_maximumPoolToken2ToDeposit)
         beforeDeadline(_deadline)
     {
+        if (_poolToken1Amount < MINIMUM_POOL_TOKEN_1_TO_DEPOSIT) {
+            revert LiquidityToAddTooLow(_poolToken1Amount, MINIMUM_POOL_TOKEN_1_TO_DEPOSIT);
+        }
         if (getTotalLiquidityProviderTokenSupply() == 0) {
             _addLiquidity(_poolToken1Amount, _poolToken2Amount, _poolToken1Amount);
         } else {
             uint256 poolToken1Reserves = i_poolToken1.balanceOf(address(this));
             uint256 poolToken2Reserves = i_poolToken2.balanceOf(address(this));
 
-            // p1: pool token 1 reserves, dp1: pool token 1 amount to deposit
-            // p2: pool token 2 reserves, dp2: pool token 2 amount to deposit
-            // (p1 + dp1) / (p2 + dp2) = p1 / p2
-            // (p1 * p2) + (p2 * dp1) = (p1 * p2) + (p1 * dp2)
-            // dp2 = (p2 * dp1) / p1
-            uint256 poolToken2ToDeposit = (poolToken2Reserves * _poolToken1Amount) / poolToken1Reserves;
+            uint256 poolToken2ToDeposit =
+                getOutputAmountBasedOnInput(_poolToken1Amount, poolToken1Reserves, poolToken2Reserves);
             if (poolToken2ToDeposit > _maximumPoolToken2ToDeposit) {
                 revert PoolTokensToDepositGreaterThanMaximumPoolTokensToDeposit(
                     i_poolToken2, poolToken2ToDeposit, _maximumPoolToken2ToDeposit
@@ -112,8 +112,29 @@ contract ThunderSwapPool is IThunderSwapPool {
         return i_liquidityProviderToken;
     }
 
+    function getMinimumPoolToken1ToSupply() external pure returns (uint256) {
+        return MINIMUM_POOL_TOKEN_1_TO_DEPOSIT;
+    }
+
     function getTotalLiquidityProviderTokenSupply() public view returns (uint256) {
         return i_liquidityProviderToken.totalSupply();
+    }
+
+    function getOutputAmountBasedOnInput(
+        uint256 _inputAmount,
+        uint256 _inputReserves,
+        uint256 _outputReserves
+    )
+        public
+        pure
+        returns (uint256)
+    {
+        // i: input token reserves, di: input token amount to deposit
+        // o: output token reserves, do: pool token 2 amount to deposit
+        // (i + di) / (o + do) = i / o
+        // (i * o) + (o * di) = (i * o) + (i * do)
+        // do = (o * di) / i
+        return ((_outputReserves * _inputAmount) / _inputReserves);
     }
 
     function _addLiquidity(
