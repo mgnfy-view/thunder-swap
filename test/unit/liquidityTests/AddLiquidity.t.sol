@@ -1,18 +1,41 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import { Test } from "forge-std/Test.sol";
-import { Init } from "../../utils/helpers/Init.sol";
+import { LiquidityHelper } from "../../utils/helpers/LiquidityHelper.sol";
+import { UniversalHelper } from "../../utils/helpers/UniversalHelper.sol";
 
-contract TestAddingLiquidity is Test, Init {
-    function testAddInitialLiquidity() public distributeTokensToUsers(1e18, 2e18) addInitialLiquidity(1e18, 2e18) {
+contract AddLiquidity is UniversalHelper, LiquidityHelper {
+    function testAddInitialLiquidity()
+        public
+        distributeTokensToUsers(1e18, 2e18)
+        addInitialLiquidity(1e18, 2e18)
+    {
         uint256 poolToken1Amount = 1e18;
         uint256 poolToken2Amount = 2e18;
 
         assertEq(thunderSwapPool.getTotalLiquidityProviderTokenSupply(), poolToken1Amount);
         assertEq(thunderSwapPool.getLiquidityProviderToken().balanceOf(deployer), poolToken1Amount);
-        assertEq(tokenA.balanceOf(address(thunderSwapPool)), poolToken1Amount);
-        assertEq(tokenB.balanceOf(address(thunderSwapPool)), poolToken2Amount);
+        assertEq(thunderSwapPool.getPoolToken1Reserves(), poolToken1Amount);
+        assertEq(thunderSwapPool.getPoolToken2Reserves(), poolToken2Amount);
+    }
+
+    function testAddingLiquidityEmitsEvent() public distributeTokensToUsers(1e18, 2e18) {
+        uint256 poolToken1Amount = 1e18;
+        uint256 poolToken2Amount = 2e18;
+
+        vm.startPrank(deployer);
+        tokenA.approve(address(thunderSwapPool), poolToken1Amount);
+        tokenB.approve(address(thunderSwapPool), poolToken2Amount);
+        vm.expectEmit(true, true, true, false);
+        emit LiquidityAdded(deployer, poolToken1Amount, poolToken2Amount);
+        thunderSwapPool.addLiquidity(
+            poolToken1Amount,
+            poolToken2Amount,
+            poolToken2Amount,
+            poolToken1Amount,
+            uint256(block.timestamp)
+        );
+        vm.stopPrank();
     }
 
     function testaddingLiquidityFailsIfInputTokenAmountIsZero() public {
@@ -22,7 +45,10 @@ contract TestAddingLiquidity is Test, Init {
         vm.stopPrank();
     }
 
-    function testAddingLiquidityFailsIfDeadlineHasPassed() public distributeTokensToUsers(1e18, 2e18) {
+    function testAddingLiquidityFailsIfDeadlineHasPassed()
+        public
+        distributeTokensToUsers(1e18, 2e18)
+    {
         uint256 poolToken1Amount = 1e18;
         uint256 poolToken2Amount = 1e18;
 
@@ -32,11 +58,16 @@ contract TestAddingLiquidity is Test, Init {
         vm.warp(1 days);
         uint256 deadline = uint256(block.timestamp) - 10;
         vm.expectRevert(abi.encodeWithSelector(DeadlinePassed.selector, deadline));
-        thunderSwapPool.addLiquidity(poolToken1Amount, poolToken2Amount, poolToken2Amount, 0, deadline);
+        thunderSwapPool.addLiquidity(
+            poolToken1Amount, poolToken2Amount, poolToken2Amount, 0, deadline
+        );
         vm.stopPrank();
     }
 
-    function testAddingLiquidityFailsIfAmountTooLow() public distributeTokensToUsers(1e18, 2e18) {
+    function testAddingLiquidityFailsIfPoolToken1AmountTooLow()
+        public
+        distributeTokensToUsers(1e18, 2e18)
+    {
         uint256 poolToken1Amount = 1e8;
         uint256 poolToken2Amount = 2e8;
         uint256 minimumLiquidtyToSupply = thunderSwapPool.getMinimumPoolToken1ToSupply();
@@ -45,9 +76,13 @@ contract TestAddingLiquidity is Test, Init {
         tokenA.approve(address(thunderSwapPool), poolToken1Amount);
         tokenB.approve(address(thunderSwapPool), poolToken2Amount);
         vm.expectRevert(
-            abi.encodeWithSelector(LiquidityToAddTooLow.selector, poolToken1Amount, minimumLiquidtyToSupply)
+            abi.encodeWithSelector(
+                LiquidityToAddTooLow.selector, poolToken1Amount, minimumLiquidtyToSupply
+            )
         );
-        thunderSwapPool.addLiquidity(poolToken1Amount, poolToken2Amount, poolToken2Amount, 0, uint256(block.timestamp));
+        thunderSwapPool.addLiquidity(
+            poolToken1Amount, poolToken2Amount, poolToken2Amount, 0, uint256(block.timestamp)
+        );
         vm.stopPrank();
     }
 
@@ -58,10 +93,8 @@ contract TestAddingLiquidity is Test, Init {
     {
         uint256 poolToken1Amount = 1e18;
         uint256 poolToken2Amount = 1e18;
-        uint256 poolToken1Reserves = tokenA.balanceOf(address(thunderSwapPool));
-        uint256 poolToken2Reserves = tokenB.balanceOf(address(thunderSwapPool));
         uint256 expectedPoolTokensToDeposit =
-            thunderSwapPool.getOutputAmountBasedOnInput(poolToken1Amount, poolToken1Reserves, poolToken2Reserves);
+            thunderSwapPool.getPoolToken2LiquidityToAddBasedOnPoolToken1Amount(poolToken1Amount);
         uint256 maximumPoolToken2AmountToDeposit = 15e17;
 
         vm.startPrank(user1);
@@ -76,7 +109,11 @@ contract TestAddingLiquidity is Test, Init {
             )
         );
         thunderSwapPool.addLiquidity(
-            poolToken1Amount, poolToken2Amount, maximumPoolToken2AmountToDeposit, 0, uint256(block.timestamp)
+            poolToken1Amount,
+            poolToken2Amount,
+            maximumPoolToken2AmountToDeposit,
+            0,
+            uint256(block.timestamp)
         );
         vm.stopPrank();
     }
@@ -95,7 +132,9 @@ contract TestAddingLiquidity is Test, Init {
         tokenB.approve(address(thunderSwapPool), poolToken2Amount);
         vm.expectRevert(
             abi.encodeWithSelector(
-                LiquidityProviderTokensToMintTooLow.selector, poolToken1Amount, minimumLiquidityProviderTokensToMint
+                LiquidityProviderTokensToMintTooLow.selector,
+                poolToken1Amount,
+                minimumLiquidityProviderTokensToMint
             )
         );
         thunderSwapPool.addLiquidity(
@@ -104,21 +143,6 @@ contract TestAddingLiquidity is Test, Init {
             poolToken2Amount,
             minimumLiquidityProviderTokensToMint,
             uint256(block.timestamp)
-        );
-        vm.stopPrank();
-    }
-
-    function testAddingLiquidityEmitsEvent() public distributeTokensToUsers(1e18, 2e18) {
-        uint256 poolToken1Amount = 1e18;
-        uint256 poolToken2Amount = 2e18;
-
-        vm.startPrank(deployer);
-        tokenA.approve(address(thunderSwapPool), poolToken1Amount);
-        tokenB.approve(address(thunderSwapPool), poolToken2Amount);
-        vm.expectEmit(true, true, true, false);
-        emit LiquidityAdded(deployer, poolToken1Amount, poolToken2Amount);
-        thunderSwapPool.addLiquidity(
-            poolToken1Amount, poolToken2Amount, poolToken2Amount, poolToken1Amount, uint256(block.timestamp)
         );
         vm.stopPrank();
     }
