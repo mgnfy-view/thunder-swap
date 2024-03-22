@@ -13,10 +13,20 @@ contract LiquidityProviderToken is ERC20, Ownable {
         Ownable(msg.sender)
     { }
 
+    /**
+     * @notice Mints the specified amount of LP tokens to the specified account
+     * @param _account The receiver of LP tokens
+     * @param _amount The amount of LP tokens to mint
+     */
     function mint(address _account, uint256 _amount) external onlyOwner {
         _mint(_account, _amount);
     }
 
+    /**
+     * @notice Burns the specified amount of LP tokens held by the specified account
+     * @param _account The account whose LP tokens are to be burnt
+     * @param _amount The amount of LP tokens to burn
+     */
     function burn(address _account, uint256 _amount) external onlyOwner {
         _burn(_account, _amount);
     }

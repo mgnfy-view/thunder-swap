@@ -83,6 +83,18 @@ contract ThunderSwapPool is IThunderSwapPool {
         emit LiquidityProviderTokenDeployed(address(i_liquidityProviderToken));
     }
 
+    /**
+     * @notice Allows users to become liquidity providers by supplying the protocol with liquidity
+     * @dev Pool token 2 to supply is calculated based on pool token 1 amount. However, at inception
+     * the first LP can decide on the ratio of his/her deposit
+     * @param _poolToken1Amount The amount of pool token 1 to add as liquidity
+     * @param _poolToken2Amount The amount of pool token 2 to add as liquidity
+     * @param _maximumPoolToken2ToDeposit (slippage protection) The maximum amount of pool token 2 to deposit
+     * based on pool token 1 amount
+     * @param _minimumLiquidityProviderTokensToMint (slippage protection) The minimum share of the pool the
+     * liquidity provider is expecting to own
+     * @param _deadline Deadline before which the liquidity should be added
+     */
     function addLiquidity(
         uint256 _poolToken1Amount,
         uint256 _poolToken2Amount,
@@ -123,6 +135,16 @@ contract ThunderSwapPool is IThunderSwapPool {
         }
     }
 
+    /**
+     * @notice Allows liquidity providers to exit the protocol by withdrawing their deposited liquidity
+     * @param _liquidityProviderTokensToBurn The amount of LP tokens the LP wants to burn to claim
+     * his/her liquidity
+     * @param _minimumPoolToken1ToWithdraw (slippage protection) The minimum pool token 1 amount the LP
+     * is expecting to withdraw
+     * @param _minimumPoolToken2ToWithdraw (slippage protection) The minimum pool token 2 amount the LP
+     * is expecting to withdraw
+     * @param _deadline Deadline before which the liquidity should be withdrawn
+     */
     function withdrawLiquidity(
         uint256 _liquidityProviderTokensToBurn,
         uint256 _minimumPoolToken1ToWithdraw,
@@ -167,6 +189,16 @@ contract ThunderSwapPool is IThunderSwapPool {
         );
     }
 
+    /**
+     * @notice Flash swaps exact amount of input token for output token
+     * @param _inputToken The input token (supported by the pool)
+     * @param _inputAmount The amount of input token to send
+     * @param _minimumOutputTokenToReceive (slippage protection) The minimum amount of output token
+     * to receive
+     * @param _receiver Receiver of the output token amount (contract, or a wallet)
+     * @param _callContract If true, call the `onThunderSwapReceived()` function on the receiver contract
+     * @param _deadline Deadline before which the flash swap should occur
+     */
     function flashSwapExactInput(
         IERC20 _inputToken,
         uint256 _inputAmount,
@@ -198,6 +230,16 @@ contract ThunderSwapPool is IThunderSwapPool {
         );
     }
 
+    /**
+     * @notice Flash swaps a certain amount of input token for an exact amount of output token
+     * @param _outputToken The output token (supported by the pool)
+     * @param _outputAmount The amount of output token to receive
+     * @param _maximumInputTokensToSend (slippage protection) The maximum amount of input token
+     * to send
+     * @param _receiver Receiver of the output token amount (contract, or a wallet)
+     * @param _callContract If true, call the `onThunderSwapReceived()` function on the receiver contract
+     * @param _deadline Deadline before which the flash swap should occur
+     */
     function flashSwapExactOutput(
         IERC20 _outputToken,
         uint256 _outputAmount,
@@ -231,39 +273,71 @@ contract ThunderSwapPool is IThunderSwapPool {
         );
     }
 
+    /**
+     * @return The pool token 1 contract
+     */
     function getPoolToken1() external view returns (IERC20) {
         return i_poolToken1;
     }
 
+    /**
+     * @return The pool token 2 contract
+     */
     function getPoolToken2() external view returns (IERC20) {
         return i_poolToken2;
     }
 
+    /**
+     * @return The liquidity provider token contract
+     */
     function getLiquidityProviderToken() external view returns (IERC20) {
         return i_liquidityProviderToken;
     }
 
+    /**
+     * @return The minimum pool token 1 amount to add as liquidity
+     */
     function getMinimumPoolToken1ToSupply() external pure returns (uint256) {
         return MINIMUM_POOL_TOKEN_1_TO_DEPOSIT;
     }
 
+    /**
+     * @return The total LP token supply
+     */
     function getTotalLiquidityProviderTokenSupply() public view returns (uint256) {
         return i_liquidityProviderToken.totalSupply();
     }
 
+    /**
+     * @return The total amount of pool token 1 held by this protocol
+     */
     function getPoolToken1Reserves() public view returns (uint256) {
         return i_poolToken1.balanceOf(address(this));
     }
 
+    /**
+     * @return The total amount of pool token 2 held by this protocol
+     */
     function getPoolToken2Reserves() public view returns (uint256) {
         return i_poolToken2.balanceOf(address(this));
     }
 
+    /**
+     * @notice Checks if the specified token is used by this pool
+     * @param _token The token to check
+     * @return True or false depending on whether it is a pool token or not
+     */
     function isPoolToken(IERC20 _token) public view returns (bool) {
         if (_token == i_poolToken1 || _token == i_poolToken2) return true;
         return false;
     }
 
+    /**
+     * @notice Calculates the amount of pool token 2 to supply as liquidity for a specified
+     * pool token 1 amount
+     * @param _poolToken1Amount The amount of pool token 1 liquidity you want to add
+     * @return The amount of pool token 2 to supply as liquidity
+     */
     function getPoolToken2LiquidityToAddBasedOnPoolToken1Amount(uint256 _poolToken1Amount)
         public
         view
@@ -278,6 +352,12 @@ contract ThunderSwapPool is IThunderSwapPool {
         return ((getPoolToken2Reserves() * _poolToken1Amount) / getPoolToken1Reserves());
     }
 
+    /**
+     * @notice Calculates the amount of pool token 1 to supply as liquidity for a specified
+     * pool token 2 amount
+     * @param _poolToken2Amount The amount of pool token 2 liquidity you want to add
+     * @return The amount of pool token 1 to supply as liquidity
+     */
     function getPoolToken1LiquidityToAddBasedOnPoolToken2Amount(uint256 _poolToken2Amount)
         external
         view
@@ -292,6 +372,12 @@ contract ThunderSwapPool is IThunderSwapPool {
         return ((getPoolToken1Reserves() * _poolToken2Amount) / getPoolToken2Reserves());
     }
 
+    /**
+     * @notice Calculates the amount of LP tokens to mint based on the amount of pool token 1
+     * to supply as liquidity
+     * @param _poolToken1AmountToDeposit The amount of pool token 1 liquidity you want to add
+     * @return The amount of LP tokens to mint
+     */
     function getLiquidityProviderTokensToMint(uint256 _poolToken1AmountToDeposit)
         public
         view
@@ -307,6 +393,13 @@ contract ThunderSwapPool is IThunderSwapPool {
             / getPoolToken1Reserves();
     }
 
+    /**
+     * @notice Calculates the amount of input pool token to send based on the amount of output
+     * pool token you want to receive as output
+     * @param _outputAmount The amount of output pool token you want to receive
+     * @param _inputReserves The total amount of input pool token supply held by this protocol
+     * @param _outputReserves The total amount of output pool token supply held by this protocol
+     */
     function getInputBasedOnOuput(
         uint256 _outputAmount,
         uint256 _inputReserves,
@@ -325,6 +418,13 @@ contract ThunderSwapPool is IThunderSwapPool {
         );
     }
 
+    /**
+     * @notice Calculates the amount of output pool token to receive based on the amount of input
+     * pool token you want to send
+     * @param _inputAmount The amount of output pool token you want to receive
+     * @param _inputReserves The total amount of input pool token supply held by this protocol
+     * @param _outputReserves The total amount of output pool token supply held by this protocol
+     */
     function getOutputBasedOnInput(
         uint256 _inputAmount,
         uint256 _inputReserves,
@@ -341,6 +441,13 @@ contract ThunderSwapPool is IThunderSwapPool {
             / ((FEE_NUMERATOR * _inputAmount) + (FEE_DENOMINATOR * _inputReserves));
     }
 
+    /**
+     * @notice Transfers pool token 1 and pool token 2 amounts from the user to the protocol. Helper
+     * for the `addLiquidity` function
+     * @param _poolToken1Amount The amount of pool token 1 to supply
+     * @param _poolToken2Amount The amount of pool token 2 to supply
+     * @param _liquidityProviderTokensToMint The amount of LP tokens to mint to the LP
+     */
     function _addLiquidity(
         uint256 _poolToken1Amount,
         uint256 _poolToken2Amount,
@@ -355,6 +462,13 @@ contract ThunderSwapPool is IThunderSwapPool {
         i_poolToken2.safeTransferFrom(msg.sender, address(this), _poolToken2Amount);
     }
 
+    /**
+     * @notice Sends pool token 1 and pool token 2 amount to the LP. Helper for the `withdrawLiquidity`
+     * function
+     * @param _liquidityProviderTokensToBurn The amount of LP tokens to burn
+     * @param _poolToken1AmountToWithdraw The amount of pool token 1 to withdraw
+     * @param _poolToken2AmountToWithdraw The amount of pool token 2 to withdraw
+     */
     function _withdrawLiquidity(
         uint256 _liquidityProviderTokensToBurn,
         uint256 _poolToken1AmountToWithdraw,
@@ -367,6 +481,20 @@ contract ThunderSwapPool is IThunderSwapPool {
         i_poolToken2.safeTransfer(msg.sender, _poolToken2AmountToWithdraw);
     }
 
+    /**
+     * @notice Flash swaps input token amount for the output token amount. The output token is first
+     * sent to the receiver, and the `onThunderSwapReceived()` function is called if `_callContract`
+     * is set to true. Then, in the same transaction, the receiver contract approves the amount of input
+     * token to send, and this function transfers the amount to the protocol. There can be no intermediate
+     * contract, and wallets can directly swap tokens as well by setting `_callContract` to false, and
+     * `receiver` to the wallet address
+     * @param _inputToken The input token
+     * @param _inputAmount The input token amount
+     * @param _outputToken The output token
+     * @param _outputAmount The output token amount
+     * @param _receiver The receiver of the flash swap
+     * @param _callContract If true, call the `onThunderSwapReceived()` function on the receiver contract
+     */
     function _flashSwap(
         IERC20 _inputToken,
         uint256 _inputAmount,

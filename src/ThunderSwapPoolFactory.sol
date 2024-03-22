@@ -19,12 +19,22 @@ contract ThunderSwapPoolFactory is Ownable {
 
     constructor() Ownable(msg.sender) { }
 
+    /**
+     * @notice Adds tokens for which a thunder swap pool can be deployed
+     * @param _token The token to support
+     */
     function setSupportedToken(address _token) external onlyOwner {
         s_supportedTokens[_token] = true;
 
         emit SupportedToken(_token);
     }
 
+    /**
+     * @notice Deploys a thunder swap pool for the two specified supported tokens
+     * @param _token1 Pool token 1
+     * @param _token2 Pool token 2
+     * @return The deployed thunder swap pool
+     */
     function deployThunderSwapPool(
         address _token1,
         address _token2
@@ -55,14 +65,29 @@ contract ThunderSwapPoolFactory is Ownable {
         return newPool;
     }
 
+    /**
+     * @notice Checks if the token is supported
+     * @param _token The token to check
+     * @return A bool indicating if the token is supported or not
+     */
     function isTokenSupported(address _token) public view returns (bool) {
         return s_supportedTokens[_token];
     }
 
+    /**
+     * @notice Gets the thunder swap pool for the specified token
+     * @param _token The token to find a pool for
+     * @return The thunder swap pool address for the given token
+     */
     function getPoolFromToken(address _token) external view returns (address) {
         return s_tokenToPool[_token];
     }
 
+    /**
+     * @notice Gets the pool tokens supported by a specified pool
+     * @param _pool The thunder swap pool
+     * @return An array of the pool tokens supported by the thunder swap pool
+     */
     function getPoolTokens(address _pool) external view returns (address[] memory) {
         return s_poolToTokens[_pool];
     }
