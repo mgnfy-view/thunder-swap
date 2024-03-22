@@ -2,8 +2,8 @@
 pragma solidity 0.8.20;
 
 import { ThunderSwapPool } from "./ThunderSwapPool.sol";
-import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract ThunderSwapPoolFactory is Ownable {
     mapping(address => bool) private s_supportedTokens;
@@ -25,7 +25,13 @@ contract ThunderSwapPoolFactory is Ownable {
         emit SupportedToken(_token);
     }
 
-    function deployThunderSwapPool(address _token1, address _token2) external returns (ThunderSwapPool) {
+    function deployThunderSwapPool(
+        address _token1,
+        address _token2
+    )
+        external
+        returns (ThunderSwapPool)
+    {
         address poolFromToken1 = s_tokenToPool[_token1];
         if (!s_supportedTokens[_token1]) revert TokenNotSupported(_token1);
         if (!s_supportedTokens[_token2]) revert TokenNotSupported(_token2);
@@ -34,8 +40,10 @@ contract ThunderSwapPoolFactory is Ownable {
             revert PoolAlreadyExists(poolFromToken1);
         }
 
-        string memory poolName = string.concat("ThunderSwap", ERC20(_token1).name(), ERC20(_token2).name());
-        string memory poolSymbol = string.concat("TS", ERC20(_token1).symbol(), ERC20(_token1).symbol());
+        string memory poolName =
+            string.concat("ThunderSwap", ERC20(_token1).name(), ERC20(_token2).name());
+        string memory poolSymbol =
+            string.concat("TS", ERC20(_token1).symbol(), ERC20(_token1).symbol());
         ThunderSwapPool newPool = new ThunderSwapPool(_token1, _token2, poolName, poolSymbol);
 
         s_poolToTokens[address(newPool)] = [_token1, _token2];
