@@ -1,13 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import { ThunderSwapPoolFactory } from "@src/ThunderSwapPoolFactory.sol";
-import { ThunderSwapPool } from "@src/ThunderSwapPool.sol";
 import { Token } from "../mocks/Token.sol";
-import { Test } from "forge-std/Test.sol";
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-contract Init is Test {
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { ThunderSwapPool } from "@src/ThunderSwapPool.sol";
+import { ThunderSwapPoolFactory } from "@src/ThunderSwapPoolFactory.sol";
+
+import { Test } from "forge-std/Test.sol";
+
+contract UniversalHelper is Test {
     address public deployer;
     address public user1;
     address public user2;
@@ -16,19 +18,10 @@ contract Init is Test {
     ThunderSwapPoolFactory public thunderSwapPoolFactory;
     ThunderSwapPool public thunderSwapPool;
 
-    event LiquidityProviderTokenDeployed(address liquidityProviderToken);
-    event LiquidityAdded(address liquidityProvider, uint256 poolToken1Amount, uint256 poolToken2Amount);
-
     error InputValueZeroNotAllowed();
     error DeadlinePassed(uint256 _deadline);
-    error LiquidityToAddTooLow(uint256 liquidityToAdd, uint256 MINIMUM_POOL_TOKEN_1_TO_DEPOSIT);
-    error LiquidityProviderTokensToMintTooLow(
-        uint256 liquidityProviderTokensToMint, uint256 minimumLiquidityProviderTokensToMint
-    );
     error NotAPoolToken(IERC20 poolToken);
-    error PoolTokensToDepositGreaterThanMaximumPoolTokensToDeposit(
-        IERC20 poolToken, uint256 poolTokensToDeposit, uint256 maximumPoolTokensToDeposit
-    );
+    error ReceiverZeroAddress();
 
     function setUp() public {
         deployer = makeAddr("deployer");
@@ -41,7 +34,8 @@ contract Init is Test {
         thunderSwapPoolFactory = new ThunderSwapPoolFactory();
         thunderSwapPoolFactory.setSupportedToken(address(tokenA));
         thunderSwapPoolFactory.setSupportedToken(address(tokenB));
-        thunderSwapPool = thunderSwapPoolFactory.deployThunderSwapPool(address(tokenA), address(tokenB));
+        thunderSwapPool =
+            thunderSwapPoolFactory.deployThunderSwapPool(address(tokenA), address(tokenB));
         vm.stopPrank();
     }
 
@@ -64,7 +58,11 @@ contract Init is Test {
         tokenA.approve(address(thunderSwapPool), _poolToken1Amount);
         tokenB.approve(address(thunderSwapPool), _poolToken2Amount);
         thunderSwapPool.addLiquidity(
-            _poolToken1Amount, _poolToken2Amount, _poolToken2Amount, _poolToken1Amount, uint256(block.timestamp)
+            _poolToken1Amount,
+            _poolToken2Amount,
+            _poolToken2Amount,
+            _poolToken1Amount,
+            uint256(block.timestamp)
         );
         vm.stopPrank();
         _;
