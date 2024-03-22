@@ -13,5 +13,7 @@ docs/
 # Dotenv file
 .env
 
+node_modules
+
 # My notes!
 .notes.md
