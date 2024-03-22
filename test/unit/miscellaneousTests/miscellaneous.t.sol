@@ -100,4 +100,30 @@ contract MiscellaneousTest is UniversalHelper {
             thunderSwapPool.getOutputBasedOnInput(inputAmount, inputReserves, outputReserves);
         assert(outputAmount > minimumOutputAmount);
     }
+
+    function testIsTokenSupported() public view {
+        assert(thunderSwapPoolFactory.isTokenSupported(address(tokenA)));
+        assert(thunderSwapPoolFactory.isTokenSupported(address(tokenB)));
+    }
+
+    function testSetSupportedToken() public {
+        address supportToken = makeAddr("supportToken");
+
+        vm.prank(deployer);
+        thunderSwapPoolFactory.setSupportedToken(supportToken);
+
+        assert(thunderSwapPoolFactory.isTokenSupported(supportToken));
+    }
+
+    function testGetPoolFromToken() public view {
+        assertEq(thunderSwapPoolFactory.getPoolFromToken(address(tokenA)), address(thunderSwapPool));
+        assertEq(thunderSwapPoolFactory.getPoolFromToken(address(tokenB)), address(thunderSwapPool));
+    }
+
+    function testGetPoolTokensFromThunderSwapPool() public view {
+        address[] memory poolTokens = thunderSwapPoolFactory.getPoolTokens(address(thunderSwapPool));
+
+        assertEq(poolTokens[0], address(tokenA));
+        assertEq(poolTokens[1], address(tokenB));
+    }
 }
