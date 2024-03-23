@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {PoolFactoryHelper} from "../../utils/helpers/PoolFactoryHelper.sol";
-import {UniversalHelper} from "../../utils/helpers/UniversalHelper.sol";
-import {Token} from "../../utils/mocks/Token.sol";
+import { PoolFactoryHelper } from "../../utils/helpers/PoolFactoryHelper.sol";
+import { UniversalHelper } from "../../utils/helpers/UniversalHelper.sol";
+import { Token } from "../../utils/mocks/Token.sol";
 
 contract DeployPool is UniversalHelper, PoolFactoryHelper {
     function testDeployingThunderSwapPoolRevertsIfTokenNotSupported() public {
@@ -22,8 +22,14 @@ contract DeployPool is UniversalHelper, PoolFactoryHelper {
         thunderSwapPoolFactory.deployThunderSwapPool(tokenAddress, tokenAddress);
     }
 
-    function testDeployingThunderSwapPoolRevertsIfPoolAlreadyExists() public distributeTokensToUsers(1e18, 2e18) addInitialLiquidity(1e18, 2e18) {
-        vm.expectRevert(abi.encodeWithSelector(PoolAlreadyExists.selector, address(thunderSwapPool)));
+    function testDeployingThunderSwapPoolRevertsIfPoolAlreadyExists()
+        public
+        distributeTokensToUsers(1e18, 2e18)
+        addInitialLiquidity(1e18, 2e18)
+    {
+        vm.expectRevert(
+            abi.encodeWithSelector(PoolAlreadyExists.selector, address(thunderSwapPool))
+        );
         thunderSwapPoolFactory.deployThunderSwapPool(address(tokenB), address(tokenA));
     }
 
