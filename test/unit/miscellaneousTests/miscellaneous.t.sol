@@ -132,7 +132,13 @@ contract MiscellaneousTest is UniversalHelper {
     }
 
     function testGetPoolFromPairings() public view {
-        assertEq(thunderSwapPoolFactory.getPairing(address(tokenA),address(tokenB)), address(thunderSwapPool));
-         assertEq(thunderSwapPoolFactory.getPairing(address(tokenA),address(tokenB)), address(thunderSwapPool));
+        assertEq(
+            thunderSwapPoolFactory.getPoolFromPairing(address(tokenA), address(tokenB)),
+            address(thunderSwapPool)
+        );
+        assertEq(
+            thunderSwapPoolFactory.getPoolFromPairing(address(tokenA), address(tokenB)),
+            address(thunderSwapPool)
+        );
     }
 }

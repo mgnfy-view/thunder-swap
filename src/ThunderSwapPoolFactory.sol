@@ -46,8 +46,8 @@ contract ThunderSwapPoolFactory is Ownable {
         if (!s_supportedTokens[_token1]) revert TokenNotSupported(_token1);
         if (!s_supportedTokens[_token2]) revert TokenNotSupported(_token2);
         if (_token1 == _token2) revert PoolCannotHaveTwoTokensOfTheSameType();
-        address _pool = s_pairings[_token1][_token2];
-        if (_pool != address(0)) revert PoolAlreadyExists(_pool);
+        address pool = s_pairings[_token1][_token2];
+        if (pool != address(0)) revert PoolAlreadyExists(pool);
 
         string memory poolName =
             string.concat("ThunderSwap", ERC20(_token1).name(), ERC20(_token2).name());
@@ -96,12 +96,12 @@ contract ThunderSwapPoolFactory is Ownable {
     }
 
     /**
-     * @notice Returns the address of the pool that two tokens have.
-     * @param _token1 The address of the first token.
-     * @param _token2 The address of the second token.
-     * @return The address of the pool for _token1 and _token2.
+     * @notice Gets the address of the pool that two tokens have
+     * @param _token1 The address of the first token
+     * @param _token2 The address of the second token
+     * @return The address of the pool for _token1 and _token2
      */
-    function getPairing(address _token1, address _token2) external view returns (address) {
+    function getPoolFromPairing(address _token1, address _token2) external view returns (address) {
         return s_pairings[_token1][_token2];
     }
 }
