@@ -7,7 +7,7 @@ import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract ThunderSwapPoolFactory is Ownable {
     mapping(address => bool) private s_supportedTokens;
-    mapping(address => address) private s_tokenToPool;
+    mapping(address => address[]) private s_tokenToPools;
     mapping(address => address[]) private s_poolToTokens;
 
     event PoolCreated(address newPool, address token1, address token2);
@@ -42,14 +42,10 @@ contract ThunderSwapPoolFactory is Ownable {
         external
         returns (ThunderSwapPool)
     {
-        address poolFromToken1 = s_tokenToPool[_token1];
         if (!s_supportedTokens[_token1]) revert TokenNotSupported(_token1);
         if (!s_supportedTokens[_token2]) revert TokenNotSupported(_token2);
         if (_token1 == _token2) revert PoolCannotHaveTwoTokensOfTheSameType();
-        if (poolFromToken1 != address(0) && poolFromToken1 == s_tokenToPool[_token2]) {
-            revert PoolAlreadyExists(poolFromToken1);
-        }
-
+        
         string memory poolName =
             string.concat("ThunderSwap", ERC20(_token1).name(), ERC20(_token2).name());
         string memory poolSymbol =
@@ -57,8 +53,8 @@ contract ThunderSwapPoolFactory is Ownable {
         ThunderSwapPool newPool = new ThunderSwapPool(_token1, _token2, poolName, poolSymbol);
 
         s_poolToTokens[address(newPool)] = [_token1, _token2];
-        s_tokenToPool[_token1] = address(newPool);
-        s_tokenToPool[_token2] = address(newPool);
+        s_tokenToPools[_token1].push(address(newPool));
+        s_tokenToPools[_token2].push(address(newPool));
 
         emit PoolCreated(address(newPool), _token1, _token2);
 
@@ -79,8 +75,8 @@ contract ThunderSwapPoolFactory is Ownable {
      * @param _token The token to find a pool for
      * @return The thunder swap pool address for the given token
      */
-    function getPoolFromToken(address _token) external view returns (address) {
-        return s_tokenToPool[_token];
+    function getPoolsFromToken(address _token) external view returns (address[] memory) {
+        return s_tokenToPools[_token];
     }
 
     /**
