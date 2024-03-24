@@ -6,9 +6,10 @@ import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract ThunderSwapPoolFactory is Ownable {
-    mapping(address => bool) private s_supportedTokens;
-    mapping(address => address[]) private s_tokenToPools;
-    mapping(address => address[]) private s_poolToTokens;
+    mapping(address token => bool supported) private s_supportedTokens;
+    mapping(address token1 => mapping(address token2 => address pool)) private s_pairings;
+    mapping(address token => address[] pools) private s_tokenToPools;
+    mapping(address pool => address[] tokens) private s_poolToTokens;
 
     event PoolCreated(address newPool, address token1, address token2);
     event SupportedToken(address supportedToken);
@@ -45,7 +46,9 @@ contract ThunderSwapPoolFactory is Ownable {
         if (!s_supportedTokens[_token1]) revert TokenNotSupported(_token1);
         if (!s_supportedTokens[_token2]) revert TokenNotSupported(_token2);
         if (_token1 == _token2) revert PoolCannotHaveTwoTokensOfTheSameType();
-        
+        address _pool = s_pairings[_token1][_token2];
+        if (_pool != address(0)) revert PoolAlreadyExists(_pool);
+
         string memory poolName =
             string.concat("ThunderSwap", ERC20(_token1).name(), ERC20(_token2).name());
         string memory poolSymbol =
@@ -53,8 +56,12 @@ contract ThunderSwapPoolFactory is Ownable {
         ThunderSwapPool newPool = new ThunderSwapPool(_token1, _token2, poolName, poolSymbol);
 
         s_poolToTokens[address(newPool)] = [_token1, _token2];
+
         s_tokenToPools[_token1].push(address(newPool));
         s_tokenToPools[_token2].push(address(newPool));
+
+        s_pairings[_token1][_token2] = address(newPool);
+        s_pairings[_token2][_token1] = address(newPool);
 
         emit PoolCreated(address(newPool), _token1, _token2);
 
@@ -86,5 +93,15 @@ contract ThunderSwapPoolFactory is Ownable {
      */
     function getPoolTokens(address _pool) external view returns (address[] memory) {
         return s_poolToTokens[_pool];
+    }
+
+    /**
+     * @notice Returns the address of the pool that two tokens have.
+     * @param _token1 The address of the first token.
+     * @param _token2 The address of the second token.
+     * @return The address of the pool for _token1 and _token2.
+     */
+    function getPairing(address _token1, address _token2) external view returns (address) {
+        return s_pairings[_token1][_token2];
     }
 }
