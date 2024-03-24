@@ -115,9 +115,13 @@ contract MiscellaneousTest is UniversalHelper {
         assert(thunderSwapPoolFactory.isTokenSupported(supportToken));
     }
 
-    function testGetPoolFromToken() public view {
-        assertEq(thunderSwapPoolFactory.getPoolFromToken(address(tokenA)), address(thunderSwapPool));
-        assertEq(thunderSwapPoolFactory.getPoolFromToken(address(tokenB)), address(thunderSwapPool));
+    function testGetPoolsFromToken() public view {
+        assertEq(
+            thunderSwapPoolFactory.getPoolsFromToken(address(tokenA))[0], address(thunderSwapPool)
+        );
+        assertEq(
+            thunderSwapPoolFactory.getPoolsFromToken(address(tokenB))[0], address(thunderSwapPool)
+        );
     }
 
     function testGetPoolTokensFromThunderSwapPool() public view {
@@ -125,5 +129,10 @@ contract MiscellaneousTest is UniversalHelper {
 
         assertEq(poolTokens[0], address(tokenA));
         assertEq(poolTokens[1], address(tokenB));
+    }
+
+    function testGetPoolFromPairings() public view {
+        assertEq(thunderSwapPoolFactory.getPairing(address(tokenA),address(tokenB)), address(thunderSwapPool));
+         assertEq(thunderSwapPoolFactory.getPairing(address(tokenA),address(tokenB)), address(thunderSwapPool));
     }
 }
