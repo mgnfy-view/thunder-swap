@@ -1,7 +1,5 @@
 
 
 # Contents
-- [interfaces](/src/interfaces)
-- [LiquidityProviderToken](LiquidityProviderToken.sol/contract.LiquidityProviderToken.md)
-- [ThunderSwapPool](ThunderSwapPool.sol/contract.ThunderSwapPool.md)
-- [ThunderSwapPoolFactory](ThunderSwapPoolFactory.sol/contract.ThunderSwapPoolFactory.md)
+- [ThunderSwapReceiver](/src/ThunderSwapReceiver)
+- [core](/src/core)
