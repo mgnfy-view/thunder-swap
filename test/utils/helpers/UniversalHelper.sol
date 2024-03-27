@@ -4,8 +4,8 @@ pragma solidity 0.8.20;
 import { Token } from "../mocks/Token.sol";
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { ThunderSwapPool } from "@src/ThunderSwapPool.sol";
-import { ThunderSwapPoolFactory } from "@src/ThunderSwapPoolFactory.sol";
+import { ThunderSwapPool } from "@src/core/ThunderSwapPool.sol";
+import { ThunderSwapPoolFactory } from "@src/core/ThunderSwapPoolFactory.sol";
 
 import { Test } from "forge-std/Test.sol";
 

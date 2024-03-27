@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import { ThunderSwapPoolFactory } from "@src/ThunderSwapPoolFactory.sol";
+import { ThunderSwapPoolFactory } from "@src/core/ThunderSwapPoolFactory.sol";
 import { Script } from "forge-std/Script.sol";
 
 contract DeployThunderSwapPoolFactory is Script {

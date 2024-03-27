@@ -219,7 +219,11 @@ contract FlashSwap is UniversalHelper, FlashSwapHelper {
         vm.stopPrank();
     }
 
-    function testConductNormalSwapViaFlashSwapExactInput() public distributeTokensToUsers(1e18, 2e18) addInitialLiquidity(1e18, 2e18) {
+    function testConductNormalSwapViaFlashSwapExactInput()
+        public
+        distributeTokensToUsers(1e18, 2e18)
+        addInitialLiquidity(1e18, 2e18)
+    {
         uint256 inputAmount = 1e18;
         uint256 minimumOutputTokensToReceive = 5e17;
 
@@ -238,19 +242,18 @@ contract FlashSwap is UniversalHelper, FlashSwapHelper {
         assert(tokenB.balanceOf(user1) <= 3e18);
     }
 
-    function testConductNormalSwapViaFlashSwapExactOutput() public distributeTokensToUsers(2e18, 4e18) addInitialLiquidity(1e18, 2e18) {
+    function testConductNormalSwapViaFlashSwapExactOutput()
+        public
+        distributeTokensToUsers(2e18, 4e18)
+        addInitialLiquidity(1e18, 2e18)
+    {
         uint256 outputAmount = 5e17;
         uint256 maximumInputTokensToSend = 3e18;
 
         vm.startPrank(user1);
         tokenB.approve(address(thunderSwapPool), maximumInputTokensToSend);
         thunderSwapPool.flashSwapExactOutput(
-            tokenA,
-            outputAmount,
-            maximumInputTokensToSend,
-            user1,
-            false,
-            uint256(block.timestamp)
+            tokenA, outputAmount, maximumInputTokensToSend, user1, false, uint256(block.timestamp)
         );
         vm.stopPrank();
 
