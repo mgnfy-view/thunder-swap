@@ -16,10 +16,11 @@ import { IThunderSwapReceiver } from "../ThunderSwapReceiver/interfaces/IThunder
 import { LiquidityProviderToken } from "./LiquidityProviderToken.sol";
 import { IThunderSwapPool } from "./interfaces/IThunderSwapPool.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-contract ThunderSwapPool is IThunderSwapPool {
+contract ThunderSwapPool is IThunderSwapPool, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     IERC20 private immutable i_poolToken1;
@@ -208,6 +209,8 @@ contract ThunderSwapPool is IThunderSwapPool {
      * to receive
      * @param _receiver Receiver of the output token amount (contract, or a wallet)
      * @param _callContract If true, call the `onThunderSwapReceived()` function on the receiver contract
+     * @param _callBeforeHook if true, calls the `beforeThunderSwapReceived` hook on the receiver contract
+     * @param _callAfterHook if true, calls the `afterThunderSwapReceived` hook on the receiver contract
      * @param _deadline Deadline before which the flash swap should occur
      */
     function flashSwapExactInput(
@@ -216,9 +219,12 @@ contract ThunderSwapPool is IThunderSwapPool {
         uint256 _minimumOutputTokenToReceive,
         address _receiver,
         bool _callContract,
+        bool _callBeforeHook,
+        bool _callAfterHook,
         uint256 _deadline
     )
         external
+        nonReentrant
         notZero(_inputAmount)
         notZero(_minimumOutputTokenToReceive)
         beforeDeadline(_deadline)
@@ -237,7 +243,14 @@ contract ThunderSwapPool is IThunderSwapPool {
         }
 
         _flashSwap(
-            _inputToken, _inputAmount, outputToken, outputTokenAmount, _receiver, _callContract
+            _inputToken,
+            _inputAmount,
+            outputToken,
+            outputTokenAmount,
+            _receiver,
+            _callContract,
+            _callBeforeHook,
+            _callAfterHook
         );
     }
 
@@ -249,6 +262,8 @@ contract ThunderSwapPool is IThunderSwapPool {
      * to send
      * @param _receiver Receiver of the output token amount (contract, or a wallet)
      * @param _callContract If true, call the `onThunderSwapReceived()` function on the receiver contract
+     * @param _callBeforeHook if true, calls the `beforeThunderSwapReceived` hook on the receiver contract
+     * @param _callAfterHook if true, calls the `afterThunderSwapReceived` hook on the receiver contract
      * @param _deadline Deadline before which the flash swap should occur
      */
     function flashSwapExactOutput(
@@ -257,9 +272,12 @@ contract ThunderSwapPool is IThunderSwapPool {
         uint256 _maximumInputTokensToSend,
         address _receiver,
         bool _callContract,
+        bool _callBeforeHook,
+        bool _callAfterHook,
         uint256 _deadline
     )
         external
+        nonReentrant
         notZero(_outputAmount)
         notZero(_maximumInputTokensToSend)
         beforeDeadline(_deadline)
@@ -280,7 +298,14 @@ contract ThunderSwapPool is IThunderSwapPool {
         }
 
         _flashSwap(
-            inputToken, inputAmountToSend, _outputToken, _outputAmount, _receiver, _callContract
+            inputToken,
+            inputAmountToSend,
+            _outputToken,
+            _outputAmount,
+            _receiver,
+            _callContract,
+            _callBeforeHook,
+            _callAfterHook
         );
     }
 
@@ -310,6 +335,15 @@ contract ThunderSwapPool is IThunderSwapPool {
      */
     function getMinimumPoolToken1ToSupply() external pure returns (uint256) {
         return MINIMUM_POOL_TOKEN_1_TO_DEPOSIT;
+    }
+
+    /**
+     * @notice Gets the fee taken on each flash swap (or normal swap)
+     * @return The fee numerator
+     * @return The fee denominator
+     */
+    function getSwapFee() external pure returns (uint256, uint256) {
+        return (FEE_NUMERATOR, FEE_DENOMINATOR);
     }
 
     /**
@@ -505,6 +539,8 @@ contract ThunderSwapPool is IThunderSwapPool {
      * @param _outputAmount The output token amount
      * @param _receiver The receiver of the flash swap
      * @param _callContract If true, call the `onThunderSwapReceived()` function on the receiver contract
+     * @param _callBeforeHook if true, calls the `beforeThunderSwapReceived` hook on the receiver contract
+     * @param _callAfterHook if true, calls the `afterThunderSwapReceived` hook on the receiver contract
      */
     function _flashSwap(
         IERC20 _inputToken,
@@ -512,17 +548,30 @@ contract ThunderSwapPool is IThunderSwapPool {
         IERC20 _outputToken,
         uint256 _outputAmount,
         address _receiver,
-        bool _callContract
+        bool _callContract,
+        bool _callBeforeHook,
+        bool _callAfterHook
     )
         internal
     {
         _outputToken.safeTransfer(_receiver, _outputAmount);
+
+        if (_callBeforeHook) {
+            IThunderSwapReceiver(_receiver).beforeThunderSwapReceived(
+                _inputToken, _inputAmount, _outputToken, _outputAmount
+            );
+        }
         if (_callContract) {
             IThunderSwapReceiver(_receiver).onThunderSwapReceived(
                 _inputToken, _inputAmount, _outputToken, _outputAmount
             );
         }
         _inputToken.safeTransferFrom(_receiver, address(this), _inputAmount);
+        if (_callAfterHook) {
+            IThunderSwapReceiver(_receiver).afterThunderSwapReceived(
+                _inputToken, _inputAmount, _outputToken, _outputAmount
+            );
+        }
 
         emit FlashSwapped(msg.sender, _inputToken, _outputToken, _inputAmount, _outputAmount);
     }

@@ -27,6 +27,8 @@ interface IThunderSwapPool {
         uint256 _minimumOutputTokenToReceive,
         address _receiver,
         bool _callContract,
+        bool _callBeforeHook,
+        bool _callAfterHook,
         uint256 _deadline
     )
         external;
@@ -37,6 +39,8 @@ interface IThunderSwapPool {
         uint256 _maximumInputTokensToSend,
         address _receiver,
         bool _callContract,
+        bool _callBeforeHook,
+        bool _callAfterHook,
         uint256 _deadline
     )
         external;

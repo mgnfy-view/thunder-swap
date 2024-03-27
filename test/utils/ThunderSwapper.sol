@@ -9,8 +9,11 @@ contract ThunderSwapper is IThunderSwapReceiver {
     IERC20 private immutable i_poolToken2;
     address private immutable i_thunderSwap;
 
-    modifier onlyThunderSwapContract(address _thunderSwap) {
-        if (i_thunderSwap != _thunderSwap) revert();
+    bool public isBeforeThunderSwapReceivedHookCalled;
+    bool public isAfterThunderSwapReceivedHookCalled;
+
+    modifier onlyThunderSwapContract() {
+        if (i_thunderSwap != msg.sender) revert();
         _;
     }
 
@@ -20,6 +23,30 @@ contract ThunderSwapper is IThunderSwapReceiver {
         i_thunderSwap = _thunderSwap;
     }
 
+    function beforeThunderSwapReceived(
+        IERC20,
+        uint256,
+        IERC20,
+        uint256
+    )
+        external
+        onlyThunderSwapContract
+    {
+        isBeforeThunderSwapReceivedHookCalled = true;
+    }
+
+    function afterThunderSwapReceived(
+        IERC20,
+        uint256,
+        IERC20,
+        uint256
+    )
+        external
+        onlyThunderSwapContract
+    {
+        isAfterThunderSwapReceivedHookCalled = true;
+    }
+
     function onThunderSwapReceived(
         IERC20 _inputToken,
         uint256 _inputAmount,
@@ -27,7 +54,7 @@ contract ThunderSwapper is IThunderSwapReceiver {
         uint256 /* _outputAmount */
     )
         external
-        onlyThunderSwapContract(msg.sender)
+        onlyThunderSwapContract
     {
         _inputToken.approve(msg.sender, _inputAmount);
     }

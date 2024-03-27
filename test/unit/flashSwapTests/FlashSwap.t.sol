@@ -19,12 +19,12 @@ contract FlashSwap is UniversalHelper, FlashSwapHelper {
     function flashSwappingRevertsIfInputOrOutputAmountsAreZero() public deployThunderSwapper {
         vm.expectRevert(InputValueZeroNotAllowed.selector);
         thunderSwapPool.flashSwapExactInput(
-            tokenA, 0, 0, address(thunderSwapper), true, uint256(block.timestamp)
+            tokenA, 0, 0, address(thunderSwapper), true, false, false, uint256(block.timestamp)
         );
 
         vm.expectRevert(InputValueZeroNotAllowed.selector);
         thunderSwapPool.flashSwapExactOutput(
-            tokenA, 0, 0, address(thunderSwapper), true, uint256(block.timestamp)
+            tokenA, 0, 0, address(thunderSwapper), true, false, false, uint256(block.timestamp)
         );
     }
 
@@ -36,12 +36,12 @@ contract FlashSwap is UniversalHelper, FlashSwapHelper {
         uint256 deadline = uint256(block.timestamp - 1);
         vm.expectRevert(abi.encodeWithSelector(DeadlinePassed.selector, deadline));
         thunderSwapPool.flashSwapExactInput(
-            tokenA, dummyValue1, dummyValue2, address(thunderSwapper), true, deadline
+            tokenA, dummyValue1, dummyValue2, address(thunderSwapper), true, false, false, deadline
         );
 
         vm.expectRevert(abi.encodeWithSelector(DeadlinePassed.selector, deadline));
         thunderSwapPool.flashSwapExactOutput(
-            tokenA, dummyValue1, dummyValue2, address(thunderSwapper), true, deadline
+            tokenA, dummyValue1, dummyValue2, address(thunderSwapper), true, false, false, deadline
         );
     }
 
@@ -51,12 +51,26 @@ contract FlashSwap is UniversalHelper, FlashSwapHelper {
 
         vm.expectRevert(ReceiverZeroAddress.selector);
         thunderSwapPool.flashSwapExactInput(
-            tokenA, dummyValue1, dummyValue2, address(0), true, uint256(block.timestamp)
+            tokenA,
+            dummyValue1,
+            dummyValue2,
+            address(0),
+            true,
+            false,
+            false,
+            uint256(block.timestamp)
         );
 
         vm.expectRevert(ReceiverZeroAddress.selector);
         thunderSwapPool.flashSwapExactOutput(
-            tokenA, dummyValue1, dummyValue2, address(0), true, uint256(block.timestamp)
+            tokenA,
+            dummyValue1,
+            dummyValue2,
+            address(0),
+            true,
+            false,
+            false,
+            uint256(block.timestamp)
         );
     }
 
@@ -89,6 +103,8 @@ contract FlashSwap is UniversalHelper, FlashSwapHelper {
             minimumOutputTokensToReceive,
             address(thunderSwapper),
             true,
+            false,
+            false,
             uint256(block.timestamp)
         );
         vm.stopPrank();
@@ -124,6 +140,8 @@ contract FlashSwap is UniversalHelper, FlashSwapHelper {
             maximumInputTokensToSend,
             address(thunderSwapper),
             true,
+            false,
+            false,
             uint256(block.timestamp)
         );
         vm.stopPrank();
@@ -148,6 +166,8 @@ contract FlashSwap is UniversalHelper, FlashSwapHelper {
             minimumOutputTokensToReceive,
             address(thunderSwapper),
             true,
+            false,
+            false,
             uint256(block.timestamp)
         );
         vm.stopPrank();
@@ -176,6 +196,8 @@ contract FlashSwap is UniversalHelper, FlashSwapHelper {
             maximumInputTokensToSend,
             address(thunderSwapper),
             true,
+            false,
+            false,
             uint256(block.timestamp)
         );
         vm.stopPrank();
@@ -214,6 +236,8 @@ contract FlashSwap is UniversalHelper, FlashSwapHelper {
             minimumOutputTokensToReceive,
             address(thunderSwapper),
             true,
+            false,
+            false,
             uint256(block.timestamp)
         );
         vm.stopPrank();
@@ -235,6 +259,8 @@ contract FlashSwap is UniversalHelper, FlashSwapHelper {
             minimumOutputTokensToReceive,
             user1,
             false,
+            false,
+            false,
             uint256(block.timestamp)
         );
         vm.stopPrank();
@@ -253,10 +279,56 @@ contract FlashSwap is UniversalHelper, FlashSwapHelper {
         vm.startPrank(user1);
         tokenB.approve(address(thunderSwapPool), maximumInputTokensToSend);
         thunderSwapPool.flashSwapExactOutput(
-            tokenA, outputAmount, maximumInputTokensToSend, user1, false, uint256(block.timestamp)
+            tokenA,
+            outputAmount,
+            maximumInputTokensToSend,
+            user1,
+            false,
+            false,
+            false,
+            uint256(block.timestamp)
         );
         vm.stopPrank();
 
         assert(tokenA.balanceOf(user1) == 25e17);
+    }
+
+    function testBeforeThunderSwapReceivedHookIsCalled()
+        public
+        distributeTokensToUsers(1e18, 2e18)
+        addInitialLiquidity(1e18, 2e18)
+        deployThunderSwapper
+    {
+        uint256 inputAmount = 1e18;
+        uint256 minimumOutputTokensToReceive = 5e17;
+
+        vm.startPrank(user1);
+        tokenA.transfer(address(thunderSwapper), tokenA.balanceOf(user1));
+        vm.expectEmit(true, true, true, false, address(thunderSwapPool));
+        emit FlashSwapped(
+            user1,
+            tokenA,
+            tokenB,
+            inputAmount,
+            thunderSwapPool.getOutputBasedOnInput(
+                inputAmount,
+                tokenA.balanceOf(address(thunderSwapPool)),
+                tokenB.balanceOf(address(thunderSwapPool))
+            )
+        );
+        thunderSwapPool.flashSwapExactInput(
+            tokenA,
+            inputAmount,
+            minimumOutputTokensToReceive,
+            address(thunderSwapper),
+            true,
+            true,
+            true,
+            uint256(block.timestamp)
+        );
+        vm.stopPrank();
+
+        assertEq(thunderSwapper.isBeforeThunderSwapReceivedHookCalled(), true);
+        assertEq(thunderSwapper.isAfterThunderSwapReceivedHookCalled(), true);
     }
 }

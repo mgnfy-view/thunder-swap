@@ -14,6 +14,13 @@ contract MiscellaneousTest is UniversalHelper {
         assertEq(thunderSwapPool.getMinimumPoolToken1ToSupply(), 1e9);
     }
 
+    function testGetSwapFee() public view {
+        (uint256 feeNumerator, uint256 feeDenominator) = thunderSwapPool.getSwapFee();
+
+        assertEq(feeNumerator, 997);
+        assertEq(feeDenominator, 1000);
+    }
+
     function testGetTotalLiquidityProviderTokenSupply()
         public
         distributeTokensToUsers(1e18, 2e18)
