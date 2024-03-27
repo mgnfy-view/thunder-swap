@@ -16,96 +16,6 @@ contract FlashSwap is UniversalHelper, FlashSwapHelper {
         _;
     }
 
-    function testFlashSwappingExactInputDoesNotBreakInvariant()
-        public
-        distributeTokensToUsers(2e18, 4e18)
-        addInitialLiquidity(1e18, 2e18)
-        deployThunderSwapper
-    {
-        uint256 inputAmount = 1e18;
-        uint256 minimumOutputTokensToReceive = 5e17;
-        uint256 initialInvariantValue =
-            tokenA.balanceOf(address(thunderSwapPool)) * tokenB.balanceOf(address(thunderSwapPool));
-
-        vm.startPrank(user1);
-        tokenA.transfer(address(thunderSwapper), tokenA.balanceOf(user1));
-        thunderSwapPool.flashSwapExactInput(
-            tokenA,
-            inputAmount,
-            minimumOutputTokensToReceive,
-            address(thunderSwapper),
-            true,
-            uint256(block.timestamp)
-        );
-        vm.stopPrank();
-
-        uint256 finalInvariantValue =
-            tokenA.balanceOf(address(thunderSwapPool)) * tokenB.balanceOf(address(thunderSwapPool));
-        assert(finalInvariantValue > initialInvariantValue);
-    }
-
-    function testFlashSwappingExactOutputDoesNotBreakInvariant()
-        public
-        distributeTokensToUsers(2e18, 4e18)
-        addInitialLiquidity(1e18, 2e18)
-        deployThunderSwapper
-    {
-        uint256 outputAmount = 5e17;
-        uint256 maximumInputTokensToSend = 3e18;
-        uint256 initialInvariantValue =
-            tokenA.balanceOf(address(thunderSwapPool)) * tokenB.balanceOf(address(thunderSwapPool));
-
-        vm.startPrank(user1);
-        tokenB.transfer(address(thunderSwapper), tokenB.balanceOf(user1));
-        thunderSwapPool.flashSwapExactOutput(
-            tokenA,
-            outputAmount,
-            maximumInputTokensToSend,
-            address(thunderSwapper),
-            true,
-            uint256(block.timestamp)
-        );
-        vm.stopPrank();
-
-        uint256 finalInvariantValue =
-            tokenA.balanceOf(address(thunderSwapPool)) * tokenB.balanceOf(address(thunderSwapPool));
-        assert(finalInvariantValue > initialInvariantValue);
-    }
-
-    function flashSwappingEmitsEvent()
-        public
-        distributeTokensToUsers(2e18, 4e18)
-        addInitialLiquidity(1e18, 2e18)
-        deployThunderSwapper
-    {
-        uint256 inputAmount = 1e18;
-        uint256 minimumOutputTokensToReceive = 5e17;
-
-        vm.startPrank(user1);
-        tokenA.transfer(address(thunderSwapper), tokenA.balanceOf(user1));
-        vm.expectEmit(true, true, true, false);
-        emit FlashSwapped(
-            user1,
-            tokenA,
-            tokenB,
-            inputAmount,
-            thunderSwapPool.getOutputBasedOnInput(
-                inputAmount,
-                tokenA.balanceOf(address(thunderSwapPool)),
-                tokenB.balanceOf(address(thunderSwapPool))
-            )
-        );
-        thunderSwapPool.flashSwapExactInput(
-            tokenA,
-            inputAmount,
-            minimumOutputTokensToReceive,
-            address(thunderSwapper),
-            true,
-            uint256(block.timestamp)
-        );
-        vm.stopPrank();
-    }
-
     function flashSwappingRevertsIfInputOrOutputAmountsAreZero() public deployThunderSwapper {
         vm.expectRevert(InputValueZeroNotAllowed.selector);
         thunderSwapPool.flashSwapExactInput(
@@ -118,7 +28,7 @@ contract FlashSwap is UniversalHelper, FlashSwapHelper {
         );
     }
 
-    function flashSwappingRevertsIfDeadlinePassed() public deployThunderSwapper {
+    function flashSwappingRevertsIfDeadlineHasPassed() public deployThunderSwapper {
         uint256 dummyValue1 = 1e18;
         uint256 dummyValue2 = 2e18;
 
@@ -217,5 +127,133 @@ contract FlashSwap is UniversalHelper, FlashSwapHelper {
             uint256(block.timestamp)
         );
         vm.stopPrank();
+    }
+
+    function testFlashSwappingExactInputDoesNotBreakInvariant()
+        public
+        distributeTokensToUsers(2e18, 4e18)
+        addInitialLiquidity(1e18, 2e18)
+        deployThunderSwapper
+    {
+        uint256 inputAmount = 1e18;
+        uint256 minimumOutputTokensToReceive = 5e17;
+        uint256 initialInvariantValue =
+            tokenA.balanceOf(address(thunderSwapPool)) * tokenB.balanceOf(address(thunderSwapPool));
+
+        vm.startPrank(user1);
+        tokenA.transfer(address(thunderSwapper), tokenA.balanceOf(user1));
+        thunderSwapPool.flashSwapExactInput(
+            tokenA,
+            inputAmount,
+            minimumOutputTokensToReceive,
+            address(thunderSwapper),
+            true,
+            uint256(block.timestamp)
+        );
+        vm.stopPrank();
+
+        uint256 finalInvariantValue =
+            tokenA.balanceOf(address(thunderSwapPool)) * tokenB.balanceOf(address(thunderSwapPool));
+        assert(finalInvariantValue > initialInvariantValue);
+    }
+
+    function testFlashSwappingExactOutputDoesNotBreakInvariant()
+        public
+        distributeTokensToUsers(2e18, 4e18)
+        addInitialLiquidity(1e18, 2e18)
+        deployThunderSwapper
+    {
+        uint256 outputAmount = 5e17;
+        uint256 maximumInputTokensToSend = 3e18;
+        uint256 initialInvariantValue =
+            tokenA.balanceOf(address(thunderSwapPool)) * tokenB.balanceOf(address(thunderSwapPool));
+
+        vm.startPrank(user1);
+        tokenB.transfer(address(thunderSwapper), tokenB.balanceOf(user1));
+        thunderSwapPool.flashSwapExactOutput(
+            tokenA,
+            outputAmount,
+            maximumInputTokensToSend,
+            address(thunderSwapper),
+            true,
+            uint256(block.timestamp)
+        );
+        vm.stopPrank();
+
+        uint256 finalInvariantValue =
+            tokenA.balanceOf(address(thunderSwapPool)) * tokenB.balanceOf(address(thunderSwapPool));
+        assert(finalInvariantValue > initialInvariantValue);
+    }
+
+    function flashSwappingEmitsEvent()
+        public
+        distributeTokensToUsers(2e18, 4e18)
+        addInitialLiquidity(1e18, 2e18)
+        deployThunderSwapper
+    {
+        uint256 inputAmount = 1e18;
+        uint256 minimumOutputTokensToReceive = 5e17;
+
+        vm.startPrank(user1);
+        tokenA.transfer(address(thunderSwapper), tokenA.balanceOf(user1));
+        vm.expectEmit(true, true, true, false, address(thunderSwapPool));
+        emit FlashSwapped(
+            user1,
+            tokenA,
+            tokenB,
+            inputAmount,
+            thunderSwapPool.getOutputBasedOnInput(
+                inputAmount,
+                tokenA.balanceOf(address(thunderSwapPool)),
+                tokenB.balanceOf(address(thunderSwapPool))
+            )
+        );
+        thunderSwapPool.flashSwapExactInput(
+            tokenA,
+            inputAmount,
+            minimumOutputTokensToReceive,
+            address(thunderSwapper),
+            true,
+            uint256(block.timestamp)
+        );
+        vm.stopPrank();
+    }
+
+    function testConductNormalSwapViaFlashSwapExactInput() public distributeTokensToUsers(1e18, 2e18) addInitialLiquidity(1e18, 2e18) {
+        uint256 inputAmount = 1e18;
+        uint256 minimumOutputTokensToReceive = 5e17;
+
+        vm.startPrank(user1);
+        tokenA.approve(address(thunderSwapPool), inputAmount);
+        thunderSwapPool.flashSwapExactInput(
+            tokenA,
+            inputAmount,
+            minimumOutputTokensToReceive,
+            user1,
+            false,
+            uint256(block.timestamp)
+        );
+        vm.stopPrank();
+
+        assert(tokenB.balanceOf(user1) <= 3e18);
+    }
+
+    function testConductNormalSwapViaFlashSwapExactOutput() public distributeTokensToUsers(2e18, 4e18) addInitialLiquidity(1e18, 2e18) {
+        uint256 outputAmount = 5e17;
+        uint256 maximumInputTokensToSend = 3e18;
+
+        vm.startPrank(user1);
+        tokenB.approve(address(thunderSwapPool), maximumInputTokensToSend);
+        thunderSwapPool.flashSwapExactOutput(
+            tokenA,
+            outputAmount,
+            maximumInputTokensToSend,
+            user1,
+            false,
+            uint256(block.timestamp)
+        );
+        vm.stopPrank();
+
+        assert(tokenA.balanceOf(user1) == 25e17);
     }
 }

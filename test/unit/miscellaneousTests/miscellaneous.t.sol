@@ -3,6 +3,7 @@ pragma solidity 0.8.20;
 
 import { UniversalHelper } from "../../utils/helpers/UniversalHelper.sol";
 
+// tests for view functions of ThunderSwapPool and ThunderSwapPoolFactory
 contract MiscellaneousTest is UniversalHelper {
     function testGetPoolTokenAddresses() public view {
         assertEq(address(thunderSwapPool.getPoolToken1()), address(tokenA));

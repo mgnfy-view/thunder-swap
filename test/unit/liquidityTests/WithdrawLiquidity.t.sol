@@ -5,59 +5,6 @@ import { LiquidityHelper } from "../../utils/helpers/LiquidityHelper.sol";
 import { UniversalHelper } from "../../utils/helpers/UniversalHelper.sol";
 
 contract WithdrawLiquidity is UniversalHelper, LiquidityHelper {
-    function testWithdrawLiquidity()
-        public
-        distributeTokensToUsers(1e18, 2e18)
-        addInitialLiquidity(1e18, 2e18)
-    {
-        uint256 liquidityProviderTokensToBurn = 1e18;
-        uint256 minimumPoolToken1AmountToWithdraw = 1e18;
-        uint256 minimumPoolToken2AmountToWithdraw = 2e18;
-
-        vm.startPrank(deployer);
-        thunderSwapPool.withdrawLiquidity(
-            liquidityProviderTokensToBurn,
-            minimumPoolToken1AmountToWithdraw,
-            minimumPoolToken2AmountToWithdraw,
-            uint256(block.timestamp)
-        );
-        vm.stopPrank();
-
-        assertEq(
-            thunderSwapPool.getPoolToken1().balanceOf(deployer), minimumPoolToken1AmountToWithdraw
-        );
-        assertEq(
-            thunderSwapPool.getPoolToken2().balanceOf(deployer), minimumPoolToken2AmountToWithdraw
-        );
-        assertEq(thunderSwapPool.getLiquidityProviderToken().balanceOf(deployer), 0);
-    }
-
-    function testWithdrawingLiquidityEmitsEvent()
-        public
-        distributeTokensToUsers(1e18, 2e18)
-        addInitialLiquidity(1e18, 2e18)
-    {
-        uint256 liquidityProviderTokensToBurn = 1e18;
-        uint256 minimumPoolToken1AmountToWithdraw = 1e18;
-        uint256 minimumPoolToken2AmountToWithdraw = 2e18;
-
-        vm.startPrank(deployer);
-        vm.expectEmit();
-        emit LiquidityWithdrawn(
-            deployer,
-            liquidityProviderTokensToBurn,
-            minimumPoolToken1AmountToWithdraw,
-            minimumPoolToken2AmountToWithdraw
-        );
-        thunderSwapPool.withdrawLiquidity(
-            liquidityProviderTokensToBurn,
-            minimumPoolToken1AmountToWithdraw,
-            minimumPoolToken2AmountToWithdraw,
-            uint256(block.timestamp)
-        );
-        vm.stopPrank();
-    }
-
     function testWithdrawingLiquidityRevertsIfTokenAmountPassedIsZero() public {
         vm.startPrank(deployer);
         vm.expectRevert(InputValueZeroNotAllowed.selector);
@@ -65,7 +12,7 @@ contract WithdrawLiquidity is UniversalHelper, LiquidityHelper {
         vm.stopPrank();
     }
 
-    function testWithdrawingLiquidityFailsIfDeadlineHasPassed()
+    function testWithdrawingLiquidityRevertsIfDeadlineHasPassed()
         public
         distributeTokensToUsers(1e18, 2e18)
         addInitialLiquidity(1e18, 2e18)
@@ -88,7 +35,7 @@ contract WithdrawLiquidity is UniversalHelper, LiquidityHelper {
         vm.stopPrank();
     }
 
-    function testWithdrawingLiquidityFailsIfPoolTokensToWithdrawIsLessThanMinimumPoolTokensToWithdraw(
+    function testWithdrawingLiquidityRevertsIfPoolTokensToWithdrawIsLessThanMinimumPoolTokensToWithdraw(
     )
         public
         distributeTokensToUsers(1e18, 2e18)
@@ -126,6 +73,59 @@ contract WithdrawLiquidity is UniversalHelper, LiquidityHelper {
                 2e18,
                 minimumPoolToken2AmountToWithdraw
             )
+        );
+        thunderSwapPool.withdrawLiquidity(
+            liquidityProviderTokensToBurn,
+            minimumPoolToken1AmountToWithdraw,
+            minimumPoolToken2AmountToWithdraw,
+            uint256(block.timestamp)
+        );
+        vm.stopPrank();
+    }
+
+    function testWithdrawLiquidity()
+        public
+        distributeTokensToUsers(1e18, 2e18)
+        addInitialLiquidity(1e18, 2e18)
+    {
+        uint256 liquidityProviderTokensToBurn = 1e18;
+        uint256 minimumPoolToken1AmountToWithdraw = 1e18;
+        uint256 minimumPoolToken2AmountToWithdraw = 2e18;
+
+        vm.startPrank(deployer);
+        thunderSwapPool.withdrawLiquidity(
+            liquidityProviderTokensToBurn,
+            minimumPoolToken1AmountToWithdraw,
+            minimumPoolToken2AmountToWithdraw,
+            uint256(block.timestamp)
+        );
+        vm.stopPrank();
+
+        assertEq(
+            thunderSwapPool.getPoolToken1().balanceOf(deployer), minimumPoolToken1AmountToWithdraw
+        );
+        assertEq(
+            thunderSwapPool.getPoolToken2().balanceOf(deployer), minimumPoolToken2AmountToWithdraw
+        );
+        assertEq(thunderSwapPool.getLiquidityProviderToken().balanceOf(deployer), 0);
+    }
+
+    function testWithdrawingLiquidityEmitsEvent()
+        public
+        distributeTokensToUsers(1e18, 2e18)
+        addInitialLiquidity(1e18, 2e18)
+    {
+        uint256 liquidityProviderTokensToBurn = 1e18;
+        uint256 minimumPoolToken1AmountToWithdraw = 1e18;
+        uint256 minimumPoolToken2AmountToWithdraw = 2e18;
+
+        vm.startPrank(deployer);
+        vm.expectEmit(true, true, true, true, address(thunderSwapPool));
+        emit LiquidityWithdrawn(
+            deployer,
+            liquidityProviderTokensToBurn,
+            minimumPoolToken1AmountToWithdraw,
+            minimumPoolToken2AmountToWithdraw
         );
         thunderSwapPool.withdrawLiquidity(
             liquidityProviderTokensToBurn,

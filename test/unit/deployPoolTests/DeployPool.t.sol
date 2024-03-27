@@ -7,19 +7,25 @@ import { Token } from "../../utils/mocks/Token.sol";
 
 contract DeployPool is UniversalHelper, PoolFactoryHelper {
     function testDeployingThunderSwapPoolRevertsIfTokenNotSupported() public {
-        address tokenAddress = makeAddr("unsupportedToken");
+        Token unsupportedToken = new Token("unsupportedToken", "uTkn");
 
-        vm.expectRevert(abi.encodeWithSelector(TokenNotSupported.selector, tokenAddress));
-        thunderSwapPoolFactory.deployThunderSwapPool(tokenAddress, tokenAddress);
+        vm.expectRevert(
+            abi.encodeWithSelector(TokenNotSupported.selector, address(unsupportedToken))
+        );
+        thunderSwapPoolFactory.deployThunderSwapPool(
+            address(unsupportedToken), address(unsupportedToken)
+        );
     }
 
     function testDeployingThunderSwapPoolRevertsIfBothTokensAreTheSame() public {
-        address tokenAddress = makeAddr("unsupportedToken");
+        Token supportedToken = new Token("supportedToken", "sTkn");
 
         vm.prank(deployer);
-        thunderSwapPoolFactory.setSupportedToken(tokenAddress);
+        thunderSwapPoolFactory.setSupportedToken(address(supportedToken));
         vm.expectRevert(PoolCannotHaveTwoTokensOfTheSameType.selector);
-        thunderSwapPoolFactory.deployThunderSwapPool(tokenAddress, tokenAddress);
+        thunderSwapPoolFactory.deployThunderSwapPool(
+            address(supportedToken), address(supportedToken)
+        );
     }
 
     function testDeployingThunderSwapPoolRevertsIfPoolAlreadyExists()
@@ -41,7 +47,7 @@ contract DeployPool is UniversalHelper, PoolFactoryHelper {
         thunderSwapPoolFactory.setSupportedToken(address(tokenC));
         thunderSwapPoolFactory.setSupportedToken(address(tokenD));
 
-        vm.expectEmit(false, true, true, false);
+        vm.expectEmit(false, true, true, false, address(thunderSwapPoolFactory));
         emit PoolCreated(address(0), address(tokenC), address(tokenD));
         thunderSwapPoolFactory.deployThunderSwapPool(address(tokenC), address(tokenD));
         vm.stopPrank();

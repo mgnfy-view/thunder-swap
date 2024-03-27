@@ -5,47 +5,14 @@ import { LiquidityHelper } from "../../utils/helpers/LiquidityHelper.sol";
 import { UniversalHelper } from "../../utils/helpers/UniversalHelper.sol";
 
 contract AddLiquidity is UniversalHelper, LiquidityHelper {
-    function testAddInitialLiquidity()
-        public
-        distributeTokensToUsers(1e18, 2e18)
-        addInitialLiquidity(1e18, 2e18)
-    {
-        uint256 poolToken1Amount = 1e18;
-        uint256 poolToken2Amount = 2e18;
-
-        assertEq(thunderSwapPool.getTotalLiquidityProviderTokenSupply(), poolToken1Amount);
-        assertEq(thunderSwapPool.getLiquidityProviderToken().balanceOf(deployer), poolToken1Amount);
-        assertEq(thunderSwapPool.getPoolToken1Reserves(), poolToken1Amount);
-        assertEq(thunderSwapPool.getPoolToken2Reserves(), poolToken2Amount);
-    }
-
-    function testAddingLiquidityEmitsEvent() public distributeTokensToUsers(1e18, 2e18) {
-        uint256 poolToken1Amount = 1e18;
-        uint256 poolToken2Amount = 2e18;
-
-        vm.startPrank(deployer);
-        tokenA.approve(address(thunderSwapPool), poolToken1Amount);
-        tokenB.approve(address(thunderSwapPool), poolToken2Amount);
-        vm.expectEmit(true, true, true, false);
-        emit LiquidityAdded(deployer, poolToken1Amount, poolToken2Amount);
-        thunderSwapPool.addLiquidity(
-            poolToken1Amount,
-            poolToken2Amount,
-            poolToken2Amount,
-            poolToken1Amount,
-            uint256(block.timestamp)
-        );
-        vm.stopPrank();
-    }
-
-    function testaddingLiquidityFailsIfInputTokenAmountIsZero() public {
+    function testaddingLiquidityRevertsIfInputTokenAmountIsZero() public {
         vm.startPrank(user1);
         vm.expectRevert(InputValueZeroNotAllowed.selector);
         thunderSwapPool.addLiquidity(0, 0, 0, 0, uint256(block.timestamp) - 1);
         vm.stopPrank();
     }
 
-    function testAddingLiquidityFailsIfDeadlineHasPassed()
+    function testAddingLiquidityRevertsIfDeadlineHasPassed()
         public
         distributeTokensToUsers(1e18, 2e18)
     {
@@ -64,7 +31,7 @@ contract AddLiquidity is UniversalHelper, LiquidityHelper {
         vm.stopPrank();
     }
 
-    function testAddingLiquidityFailsIfPoolToken1AmountTooLow()
+    function testAddingLiquidityRevertsIfPoolToken1AmountTooLow()
         public
         distributeTokensToUsers(1e18, 2e18)
     {
@@ -142,6 +109,39 @@ contract AddLiquidity is UniversalHelper, LiquidityHelper {
             poolToken2Amount,
             poolToken2Amount,
             minimumLiquidityProviderTokensToMint,
+            uint256(block.timestamp)
+        );
+        vm.stopPrank();
+    }
+
+    function testAddInitialLiquidity()
+        public
+        distributeTokensToUsers(1e18, 2e18)
+        addInitialLiquidity(1e18, 2e18)
+    {
+        uint256 poolToken1Amount = 1e18;
+        uint256 poolToken2Amount = 2e18;
+
+        assertEq(thunderSwapPool.getTotalLiquidityProviderTokenSupply(), poolToken1Amount);
+        assertEq(thunderSwapPool.getLiquidityProviderToken().balanceOf(deployer), poolToken1Amount);
+        assertEq(thunderSwapPool.getPoolToken1Reserves(), poolToken1Amount);
+        assertEq(thunderSwapPool.getPoolToken2Reserves(), poolToken2Amount);
+    }
+
+    function testAddingLiquidityEmitsEvent() public distributeTokensToUsers(1e18, 2e18) {
+        uint256 poolToken1Amount = 1e18;
+        uint256 poolToken2Amount = 2e18;
+
+        vm.startPrank(deployer);
+        tokenA.approve(address(thunderSwapPool), poolToken1Amount);
+        tokenB.approve(address(thunderSwapPool), poolToken2Amount);
+        vm.expectEmit(true, true, true, false, address(thunderSwapPool));
+        emit LiquidityAdded(deployer, poolToken1Amount, poolToken2Amount);
+        thunderSwapPool.addLiquidity(
+            poolToken1Amount,
+            poolToken2Amount,
+            poolToken2Amount,
+            poolToken1Amount,
             uint256(block.timestamp)
         );
         vm.stopPrank();
