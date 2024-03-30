@@ -70,9 +70,9 @@
 
 Thunder Swap is a decentralized exchange protocol that also supports flash swaps. A flash swap allows you to get a certain amount of a type of token within the pool as loan, and swap it for a certain amount of the other type of token in the pool, plus some minimal fee.
 
-A thunder swap pool factory is deployed on-chain, and users can interact with it to deploy thunder swap pools for supported tokens (set by the deployer). Liquidity providers can supply pools with liquidity (using the `ThunderSwapPool::addLiquidity()` function) and earn fees (0.3%) on each swap. Each liquidity provider is minted LP (Liquidity Provider) tokens representing the portion of the pool they own. At any time, liquidity providers can exit the protocol by withdrawing their liquidity (using the `ThunderSwapPool::withdrawLiquidity()` function, which burns LP tokens) along with any accrued fees.
+A thunder swap pool factory is deployed on-chain, and users can interact with it to deploy thunder swap pools for supported tokens (set by the deployer). Liquidity providers can supply pools with liquidity and earn a fees of 0.3% on each swap. Each liquidity provider is minted LP (Liquidity Provider) tokens representing the portion of the pool they own. At any time, liquidity providers can exit the protocol by burning these LP tokens, which allows them to withdraw their liquidity along with any accrued fees.
 
-Both normal swaps and flash swaps take place using the `ThunderSwapPool::flashSwapExactInput()` and `ThunderSwapPool::flashSwapExactOutput()` functions. In a normal swap, the `receiver` address is the user's wallet address; however, in a flash swap, a user sets the `receiver` address as the contract address (which implements the `IThunderSwapReceiver` interface). The contract that receives the token loan has to ensure that enough tokens are approved to the `ThunderSwapPool` when the control returns to it and the loan is paid back (along with fees).
+Both normal swaps and flash swaps take place using the `ThunderSwapPool::flashSwapExactInput()` and `ThunderSwapPool::flashSwapExactOutput()` functions. In a normal swap, the `receiver` address is the user's wallet address; however, in a flash swap, a user sets the `receiver` address as the contract's address (which is `IThunderSwapReceiver` interface compliant). The contract that receives the token loan has to ensure that enough tokens are approved to the `ThunderSwapPool` when the control returns to it and the loan is paid back (along with fees). With flash swaps, contracts can also activate hooks before and after a swap to fine tune their swapping strategy.
 
 
 ### Built With
@@ -148,8 +148,6 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 ## Contact
 
 Sahil Gujrati - [@https://twitter.com/mgnfy_view](https://twitter.com/https://twitter.com/mgnfy_view) - sahilgujrati12@gmail.com
-
-Project Link: [https://github.com/mgnfy-view/thunder-swap](https://github.com/mgnfy-view/thunder-swap)
 
 
 <!-- ACKNOWLEDGMENTS -->
