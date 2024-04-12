@@ -4,6 +4,12 @@ pragma solidity 0.8.20;
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
+/**
+ * @title The token to keep track of the shares of the pool held by LPs
+ * @author mgnfy-view
+ * @notice This is the ERC20 token that each `ThunderSwaPool` uses to keep track of the liquidity
+ * supplied by LPs
+ */
 contract LiquidityProviderToken is ERC20, Ownable {
     constructor(
         string memory _name,
