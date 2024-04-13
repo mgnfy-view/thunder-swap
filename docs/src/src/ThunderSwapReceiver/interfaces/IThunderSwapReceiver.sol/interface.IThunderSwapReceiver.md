@@ -1,5 +1,5 @@
 # IThunderSwapReceiver
-[Git Source](https://github.com/Sahil-Gujrati/thunder-swap/blob/65d96eb516be89fd9526025068582cb68137dd6f/src/ThunderSwapReceiver/interfaces/IThunderSwapReceiver.sol)
+[Git Source](https://github.com/Sahil-Gujrati/thunder-swap/blob/c5928651e4c994aae9565d571bef4170237837f3/src/ThunderSwapReceiver/interfaces/IThunderSwapReceiver.sol)
 
 **Inherits:**
 [IThunderSwapHooks](/src/ThunderSwapReceiver/interfaces/IThunderSwapHooks.sol/interface.IThunderSwapHooks.md)
@@ -18,7 +18,8 @@ function onThunderSwapReceived(
     IERC20 _outputToken,
     uint256 _outputAmount
 )
-    external;
+    external
+    returns (string memory);
 ```
 **Parameters**
 
@@ -28,5 +29,11 @@ function onThunderSwapReceived(
 |`_inputAmount`|`uint256`|The input token amount|
 |`_outputToken`|`IERC20`|The output token|
 |`_outputAmount`|`uint256`|The output token amount|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`string`|Return the string "Thunder Swap" for security concerns|
 
 

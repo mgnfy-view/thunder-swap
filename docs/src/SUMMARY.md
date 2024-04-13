@@ -8,6 +8,8 @@
   - [❱ core](src/core/README.md)
     - [❱ interfaces](src/core/interfaces/README.md)
       - [IThunderSwapPool](src/core/interfaces/IThunderSwapPool.sol/interface.IThunderSwapPool.md)
+    - [❱ lib](src/core/lib/README.md)
+      - [LiquiditySupplyAndSwapMath](src/core/lib/LiquiditySupplyAndSwapMath.sol/library.LiquiditySupplyAndSwapMath.md)
     - [LiquidityProviderToken](src/core/LiquidityProviderToken.sol/contract.LiquidityProviderToken.md)
     - [ThunderSwapPool](src/core/ThunderSwapPool.sol/contract.ThunderSwapPool.md)
     - [ThunderSwapPoolFactory](src/core/ThunderSwapPoolFactory.sol/contract.ThunderSwapPoolFactory.md)

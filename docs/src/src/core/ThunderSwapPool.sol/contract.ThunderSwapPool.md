@@ -1,5 +1,5 @@
 # ThunderSwapPool
-[Git Source](https://github.com/Sahil-Gujrati/thunder-swap/blob/65d96eb516be89fd9526025068582cb68137dd6f/src/core/ThunderSwapPool.sol)
+[Git Source](https://github.com/Sahil-Gujrati/thunder-swap/blob/c5928651e4c994aae9565d571bef4170237837f3/src/core/ThunderSwapPool.sol)
 
 **Inherits:**
 [IThunderSwapPool](/src/core/interfaces/IThunderSwapPool.sol/interface.IThunderSwapPool.md), ReentrancyGuard
@@ -110,7 +110,8 @@ function addLiquidity(
 
 ### withdrawLiquidity
 
-Allows liquidity providers to exit the protocol by withdrawing their deposited liquidity
+Allows liquidity providers to exit the protocol by withdrawing their deposited
+liquidity
 
 
 ```solidity
@@ -492,8 +493,8 @@ function _addLiquidity(
 
 ### _withdrawLiquidity
 
-Sends pool token 1 and pool token 2 amount to the LP. Helper for the `withdrawLiquidity`
-function
+Sends pool token 1 and pool token 2 amount to the LP. Helper for the
+`withdrawLiquidity` function
 
 
 ```solidity
@@ -517,10 +518,10 @@ function _withdrawLiquidity(
 
 Flash swaps input token amount for the output token amount. The output token is first
 sent to the receiver, and the `onThunderSwapReceived()` function is called if `_callContract`
-is set to true. Then, in the same transaction, the receiver contract approves the amount of input
-token to send, and this function transfers the amount to the protocol. There can be no intermediate
-contract, and wallets can directly swap tokens as well by setting `_callContract` to false, and
-`receiver` to the wallet address
+is set to true. Then, in the same transaction, the receiver contract approves the amount of
+input token to send, and this function transfers the amount to the protocol. There can be no
+intermediate contract, and wallets can directly swap tokens as well by setting
+`_callContract` to false, and `receiver` to the wallet address
 
 
 ```solidity
@@ -659,5 +660,11 @@ error PoolTokenToReceiveLessThanMinimumPoolTokenToReceive(
 error PoolTokenToSendMoreThanMaximumPoolTokenToSend(
     IERC20 inputToken, uint256 inputAmount, uint256 maximumInputAmount
 );
+```
+
+### IncompatibleContract
+
+```solidity
+error IncompatibleContract();
 ```
 

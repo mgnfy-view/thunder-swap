@@ -55,7 +55,9 @@ contract ThunderSwapper is IThunderSwapReceiver {
     )
         external
         onlyThunderSwapContract
+        returns (string memory)
     {
         _inputToken.approve(msg.sender, _inputAmount);
+        return ("Thunder Swap");
     }
 }

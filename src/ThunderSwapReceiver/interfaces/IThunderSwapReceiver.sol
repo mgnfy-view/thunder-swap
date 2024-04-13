@@ -11,6 +11,7 @@ interface IThunderSwapReceiver is IThunderSwapHooks {
      * @param _inputAmount The input token amount
      * @param _outputToken The output token
      * @param _outputAmount The output token amount
+     * @return Return the string "Thunder Swap" for security concerns
      */
     function onThunderSwapReceived(
         IERC20 _inputToken,
@@ -18,5 +19,6 @@ interface IThunderSwapReceiver is IThunderSwapHooks {
         IERC20 _outputToken,
         uint256 _outputAmount
     )
-        external;
+        external
+        returns (string memory);
 }

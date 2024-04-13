@@ -72,6 +72,7 @@ contract ThunderSwapPool is IThunderSwapPool, ReentrancyGuard {
     error PoolTokenToSendMoreThanMaximumPoolTokenToSend(
         IERC20 inputToken, uint256 inputAmount, uint256 maximumInputAmount
     );
+    error IncompatibleContract();
 
     modifier notZero(uint256 _inputValue) {
         if (_inputValue == 0) revert InputValueZeroNotAllowed();
@@ -516,18 +517,21 @@ contract ThunderSwapPool is IThunderSwapPool, ReentrancyGuard {
     {
         _outputToken.safeTransfer(_receiver, _outputAmount);
 
-        if (_callBeforeHook) {
+        if (_callContract && _callBeforeHook) {
             IThunderSwapReceiver(_receiver).beforeThunderSwapReceived(
                 _inputToken, _inputAmount, _outputToken, _outputAmount
             );
         }
         if (_callContract) {
-            IThunderSwapReceiver(_receiver).onThunderSwapReceived(
+            (string memory check) = IThunderSwapReceiver(_receiver).onThunderSwapReceived(
                 _inputToken, _inputAmount, _outputToken, _outputAmount
             );
+            if (keccak256(abi.encodePacked(check)) != keccak256(abi.encodePacked("Thunder Swap"))) {
+                revert IncompatibleContract();
+            }
         }
         _inputToken.safeTransferFrom(_receiver, address(this), _inputAmount);
-        if (_callAfterHook) {
+        if (_callContract && _callAfterHook) {
             IThunderSwapReceiver(_receiver).afterThunderSwapReceived(
                 _inputToken, _inputAmount, _outputToken, _outputAmount
             );
