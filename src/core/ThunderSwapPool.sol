@@ -22,6 +22,11 @@ import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.s
 
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
+/**
+ * @title Thunder Swap Pool
+ * @author Sahil Gujrati aka mgnfy.view
+ * @notice The AMM used to supply liquidity, and swap tokens
+ */
 contract ThunderSwapPool is IThunderSwapPool, ReentrancyGuard {
     using SafeERC20 for IERC20;
 

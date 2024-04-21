@@ -5,6 +5,12 @@ import { ThunderSwapPool } from "./ThunderSwapPool.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
+/**
+ * @title Thunder Swap Pool Factory
+ * @author Sahil Gujrati aka mgnfy.view
+ * @notice This factory can be used to deploy Thunder Swap pools for various
+ * token combinations
+ */
 contract ThunderSwapPoolFactory is Ownable {
     mapping(address token => bool supported) private s_supportedTokens;
     mapping(address token1 => mapping(address token2 => address pool)) private s_pairings;
