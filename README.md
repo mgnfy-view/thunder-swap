@@ -116,8 +116,16 @@ That's it, you are good to go now!
 ## Roadmap
 
 - [x] Smart contract development
+  - [x] Thunder Swap Core
+  - [x] Thunder Swap $THUD token
+  - [x] Thunder Swap Airdrop Manager
 - [x] Testing
   - [x] Unit testing
+    - [x] Pool deployment tests
+    - [x] Liquidity tests
+    - [x] Flash swap tests
+    - [x] Airdrop tests
+    - [x] Miscellaneous tests
 
 See the [open issues](https://github.com/mgnfy-view/thunder-swap/issues) for a full list of proposed features (and known issues).
 
