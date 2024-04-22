@@ -17,14 +17,12 @@ contract AirdropManager is Ownable {
     mapping(address token => bool isSupported) private s_supportedTokens;
     uint256 constant AIRDROP_LIMIT = 150;
 
-    error AirdropManager__LimitBreached(
-        uint256 numberOfRecepients, uint256 allowedNumberOfRecepients
-    );
-    error AirdropManager__TokenAlreadySupported();
-    error AirdropManager__InsufficientTokenBalance();
+    error LimitBreached(uint256 numberOfRecepients, uint256 allowedNumberOfRecepients);
+    error TokenAlreadySupported();
+    error InsufficientTokenBalance();
 
-    event AirdropManager__TokenSupported(address token);
-    event AirdropManager__TokensAirdropped(address token, uint256 totalAmount);
+    event TokenSupported(address token);
+    event TokensAirdropped(address token, uint256 totalAmount);
 
     constructor(address[] memory _tokens) Ownable(msg.sender) {
         uint256 length = _tokens.length;
@@ -49,12 +47,12 @@ contract AirdropManager is Ownable {
         onlyOwner
     {
         if (_recipients.length > AIRDROP_LIMIT) {
-            revert AirdropManager__LimitBreached(_recipients.length, AIRDROP_LIMIT);
+            revert LimitBreached(_recipients.length, AIRDROP_LIMIT);
         }
         address token = s_tokens[_tokenIndex];
         uint256 totalAmount = 0;
         if (IERC20(token).balanceOf(address(this)) == 0) {
-            revert AirdropManager__InsufficientTokenBalance();
+            revert InsufficientTokenBalance();
         }
         for (uint256 count = 0; count < _recipients.length; count++) {
             require(_recipients[count] != address(0));
@@ -62,7 +60,7 @@ contract AirdropManager is Ownable {
             totalAmount += _amounts[count];
         }
 
-        emit AirdropManager__TokensAirdropped(token, totalAmount);
+        emit TokensAirdropped(token, totalAmount);
     }
 
     /**
@@ -70,10 +68,10 @@ contract AirdropManager is Ownable {
      * @param _token The token to support
      */
     function addToken(address _token) external onlyOwner {
-        if (s_supportedTokens[_token]) revert AirdropManager__TokenAlreadySupported();
+        if (s_supportedTokens[_token]) revert TokenAlreadySupported();
         s_supportedTokens[_token] = true;
         s_tokens.push(_token);
-        emit AirdropManager__TokenSupported(_token);
+        emit TokenSupported(_token);
     }
 
     /**
@@ -110,5 +108,12 @@ contract AirdropManager is Ownable {
      */
     function getToken(uint256 _tokenIndex) external view returns (address) {
         return s_tokens[_tokenIndex];
+    }
+
+    /**
+     * @return The max number of receiver's for a single airdrop session
+     */
+    function getAirdropLimit() external pure returns (uint256) {
+        return AIRDROP_LIMIT;
     }
 }

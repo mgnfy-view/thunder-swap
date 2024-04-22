@@ -6,12 +6,15 @@ import { Thud } from "@src/governance/Thud.sol";
 import { Script } from "forge-std/Script.sol";
 
 contract DeployThudAndAirdropManager is Script {
+    address[] public supportedTokens;
+
     function run() external {
+        uint256 initialSupply = 1000e18;
+
         vm.startBroadcast();
-        Thud thud = new Thud(1000e18);
-        address[] memory supportedTokens;
-        supportedTokens[0] = address(thud);
-        AirdropManager manager = new AirdropManager(supportedTokens);
+        Thud thud = new Thud(initialSupply);
+        supportedTokens.push(address(thud));
+        AirdropManager airdropManager = new AirdropManager(supportedTokens);
         vm.stopBroadcast();
     }
 }
