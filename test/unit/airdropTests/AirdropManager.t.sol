@@ -104,11 +104,11 @@ contract AirdropManagerTests is AirdropManagerHelper {
         assertEq(thud.balanceOf(address(airdropManager)), airdropManager.checkTokenBalanceHeld(0));
     }
 
-    function testGetToken() public {
+    function testGetToken() public view {
         assertEq(airdropManager.getToken(0), address(thud));
     }
 
-    function testGetAirdropLimit() public {
+    function testGetAirdropLimit() public view {
         assertEq(airdropManager.getAirdropLimit(), 150);
     }
 }
