@@ -17,3 +17,5 @@
     - [ThunderSwapPoolFactory](src/core/ThunderSwapPoolFactory.sol/contract.ThunderSwapPoolFactory.md)
   - [❱ governance](src/governance/README.md)
     - [Thud](src/governance/Thud.sol/contract.Thud.md)
+    - [ThunderGovernor](src/governance/ThunderGovernor.sol/contract.ThunderGovernor.md)
+    - [ThunderTimeLock](src/governance/ThunderTimelock.sol/contract.ThunderTimeLock.md)

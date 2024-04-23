@@ -74,6 +74,7 @@ A thunder swap pool factory is deployed on-chain, and users can interact with it
 
 Both normal swaps and flash swaps take place using the `ThunderSwapPool::flashSwapExactInput()` and `ThunderSwapPool::flashSwapExactOutput()` functions. In a normal swap, the `receiver` address is the user's wallet address; however, in a flash swap, a user sets the `receiver` address as the contract's address (which is `IThunderSwapReceiver` interface compliant). The contract that receives the token loan has to ensure that enough tokens are approved to the `ThunderSwapPool` when the control returns to it and the loan is paid back (along with fees). With flash swaps, contracts can also activate hooks before and after a swap to fine tune their swapping strategy.
 
+Thunder Swap is marching towards a community-driven future with the introduction of the $THUD token, which is the key utility and governance token in the Thunder Swap ecosystem. Currently, the only way to obtain $THUD is via an airdrop conducted by the protocol team to reward loyal and regular users of the protocol.
 
 ### Built With
 
@@ -115,10 +116,16 @@ That's it, you are good to go now!
 ## Roadmap
 
 - [x] Smart contract development
-- [ ] Testing
+  - [x] Thunder Swap Core
+  - [x] Thunder Swap $THUD token
+  - [x] Thunder Swap Airdrop Manager
+- [x] Testing
   - [x] Unit testing
-  - [ ] Fuzz testing
-- [ ] UI development
+    - [x] Pool deployment tests
+    - [x] Liquidity tests
+    - [x] Flash swap tests
+    - [x] Airdrop tests
+    - [x] Miscellaneous tests
 
 See the [open issues](https://github.com/mgnfy-view/thunder-swap/issues) for a full list of proposed features (and known issues).
 

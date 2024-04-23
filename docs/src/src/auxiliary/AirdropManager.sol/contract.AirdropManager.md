@@ -1,5 +1,5 @@
 # AirdropManager
-[Git Source](https://github.com/Sahil-Gujrati/thunder-swap/blob/538bce28778223301347f4273ff464e4ab8e7382/src/auxiliary/AirdropManager.sol)
+[Git Source](https://github.com/Sahil-Gujrati/thunder-swap/blob/48c2541b51225b6140f6383b56ab80046ea60c03/src/auxiliary/AirdropManager.sol)
 
 **Inherits:**
 Ownable
@@ -139,35 +139,48 @@ function getToken(uint256 _tokenIndex) external view returns (address);
 |`_tokenIndex`|`uint256`|The index of the token in the supported tokens list|
 
 
-## Events
-### AirdropManager__TokenSupported
+### getAirdropLimit
+
 
 ```solidity
-event AirdropManager__TokenSupported(address token);
+function getAirdropLimit() external pure returns (uint256);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`uint256`|The max number of receiver's for a single airdrop session|
+
+
+## Events
+### TokenSupported
+
+```solidity
+event TokenSupported(address token);
 ```
 
-### AirdropManager__TokensAirdropped
+### TokensAirdropped
 
 ```solidity
-event AirdropManager__TokensAirdropped(address token, uint256 totalAmount);
+event TokensAirdropped(address token, uint256 totalAmount);
 ```
 
 ## Errors
-### AirdropManager__LimitBreached
+### LimitBreached
 
 ```solidity
-error AirdropManager__LimitBreached(uint256 numberOfRecepients, uint256 allowedNumberOfRecepients);
+error LimitBreached(uint256 numberOfRecepients, uint256 allowedNumberOfRecepients);
 ```
 
-### AirdropManager__TokenAlreadySupported
+### TokenAlreadySupported
 
 ```solidity
-error AirdropManager__TokenAlreadySupported();
+error TokenAlreadySupported();
 ```
 
-### AirdropManager__InsufficientTokenBalance
+### InsufficientTokenBalance
 
 ```solidity
-error AirdropManager__InsufficientTokenBalance();
+error InsufficientTokenBalance();
 ```
 
