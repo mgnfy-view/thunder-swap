@@ -156,9 +156,9 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 
 <!-- CONTACT -->
-## Contact
+## Reach Out
 
-Sahil Gujrati - [@https://twitter.com/mgnfy_view](https://twitter.com/https://twitter.com/mgnfy_view) - sahilgujrati12@gmail.com
+[Linktree](https://linktr.ee/mgnfy.view) - a gateway to my socials.
 
 
 <!-- ACKNOWLEDGMENTS -->
