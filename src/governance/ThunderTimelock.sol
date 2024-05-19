@@ -3,6 +3,11 @@ pragma solidity ^0.8.0;
 
 import { TimelockController } from "@openzeppelin/contracts/governance/TimelockController.sol";
 
+/**
+ * @title ThunderGovernor
+ * @author mgnfy-view
+ * @notice The timelock allows execution of passed governance proposals after a certain delay.
+ */
 contract ThunderTimeLock is TimelockController {
     // minDelay is how long you have to wait before executing
     // proposers is the list of addresses that can propose

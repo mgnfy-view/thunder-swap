@@ -19,6 +19,11 @@ import {
 import { GovernorVotesQuorumFraction } from
     "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
 
+/**
+ * @title ThunderGovernor
+ * @author mgnfy-view
+ * @notice Governor contract for creating governance proposals
+ */
 contract ThunderGovernor is
     Governor,
     GovernorSettings,

@@ -7,7 +7,7 @@ import { ERC20Permit, Nonces } from "@openzeppelin/contracts/token/ERC20/extensi
 import { ERC20Votes } from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 
 /**
- * @title THUD TOken
+ * @title THUD Token
  * @author Sahil Gujrati aka mgnfy.view
  * @notice This is the key utility and governance token of the Thunder Swap protocol
  */

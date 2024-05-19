@@ -1,6 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
+/**
+ * @title LiquiditySupplyAndSwapMath
+ * @author mgnfy-view
+ * @notice A library to aid in calcultion for supplying liquidity and swapping tokens
+ */
 library LiquiditySupplyAndSwapMath {
     function getPoolToken2LiquidityToAddBasedOnPoolToken1Amount(
         uint256 _poolToken1Amount,
