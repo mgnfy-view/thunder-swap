@@ -158,7 +158,9 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <!-- CONTACT -->
 ## Reach Out
 
-[Linktree](https://linktr.ee/mgnfy.view) - a gateway to my socials.
+Here's a gateway to all my socials, don't forget to hit me up!
+
+[![Linktree](https://img.shields.io/badge/linktree-1de9b6?style=for-the-badge&logo=linktree&logoColor=white)][linktree-url]
 
 
 <!-- ACKNOWLEDGMENTS -->
@@ -183,3 +185,4 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 [license-url]: https://github.com/mgnfy-view/thunder-swap/blob/main/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/sahil-gujrati-125ab0284
+[linktree-url]: https://linktr.ee/mgnfy.view
