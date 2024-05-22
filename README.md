@@ -26,6 +26,7 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
+  <img src="https://cdn.icon-icons.com/icons2/1370/PNG/512/if-weather-11-2682840_90759.png" width="64px"/>
   <h3 align="center">Thunder Swap</h3>
 
   <p align="center">
