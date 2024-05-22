@@ -27,7 +27,7 @@
 <br />
 <div align="center">
   <img src="https://cdn.icon-icons.com/icons2/1370/PNG/512/if-weather-11-2682840_90759.png" width="64px"/>
-  <h3 align="center">Thunder Swap</h3>
+  <h1 align="center">Thunder Swap</h1>
 
   <p align="center">
     A decentralized exchange and flash swapping protocol
@@ -119,8 +119,8 @@ That's it, you are good to go now!
 - [x] Smart contract development
   - [x] Thunder Swap Core
   - [x] Thunder Swap $THUD token
-  - [x] Thunder Swap Airdrop Manager
   - [x] Thunder Swap Governance
+  - [x] Thunder Swap Airdrop Manager
 - [x] Testing
   - [x] Unit testing
     - [x] Pool deployment tests
